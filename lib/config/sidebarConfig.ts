@@ -81,26 +81,16 @@ export const sidebarConfig: SidebarConfigItem[] = [
   {
     id: 'audit',
     name: 'Audit',
+    href: '/audit',
     icon: ShieldCheck,
-    roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER],
-    children: [
-      { id: 'audit-cycles', name: 'Audit Cycles', href: ROUTES.AUDIT.CYCLES, roles: [ROLES.ADMIN] },
-      { id: 'audit-verification', name: 'Asset Verification', href: ROUTES.AUDIT.VERIFICATION, roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER] },
-      { id: 'audit-discrepancy', name: 'Discrepancy Reports', href: ROUTES.AUDIT.DISCREPANCY_REPORTS, roles: [ROLES.ADMIN] },
-    ],
+    roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER, ROLES.DEPARTMENT_HEAD, ROLES.EMPLOYEE],
   },
   {
     id: 'reports',
     name: 'Reports',
+    href: '/reports',
     icon: BarChart3,
-    roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER, ROLES.DEPARTMENT_HEAD],
-    children: [
-      { id: 'reports-dashboard', name: 'Reports Dashboard', href: ROUTES.REPORTS.DASHBOARD, roles: [ROLES.ADMIN] },
-      { id: 'reports-assets', name: 'Asset Reports', href: ROUTES.REPORTS.ASSETS, roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER] },
-      { id: 'reports-bookings', name: 'Booking Reports', href: ROUTES.REPORTS.BOOKINGS, roles: [ROLES.ADMIN] },
-      { id: 'reports-maintenance', name: 'Maintenance Reports', href: ROUTES.REPORTS.MAINTENANCE, roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER] },
-      { id: 'reports-dept', name: 'Department Reports', href: ROUTES.REPORTS.DEPARTMENT, roles: [ROLES.DEPARTMENT_HEAD] },
-    ],
+    roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER, ROLES.DEPARTMENT_HEAD, ROLES.EMPLOYEE],
   },
   {
     id: 'notifications',

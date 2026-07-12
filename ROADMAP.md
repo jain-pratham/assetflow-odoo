@@ -28,7 +28,7 @@
 - [x] Transfers
 - [x] Bookings
 - [ ] Maintenance
-- [ ] Audits
+- [x] Audits
 - [ ] Notifications
 - [ ] Activity Logs
 
@@ -39,17 +39,17 @@
 - [ ] 4. Asset Allocation & Transfer
 - [x] 5. Resource Booking (Calendar/List)
 - [ ] 6. Maintenance Workflow
-- [ ] 7. Audit Cycles
+- [x] 7. Audit Cycles
 - [ ] 8. Dashboard
 - [ ] 9. Notifications & Activity Log
-- [ ] 10. Reports & Analytics
+- [x] 10. Reports & Analytics
 
 ## Business Rules
 - [x] Signup creates an Employee account ONLY; roles assigned by Admin.
 - [ ] Block double-allocation (show "currently held by X" + offer Transfer Request).
 - [x] Resource booking overlap validation.
 - [ ] Maintenance must be approved before status is "Under Maintenance"; resolution flips back to "Available".
-- [ ] Audit Cycle discrepancies auto-generate a report; closing updates statuses.
+- [x] Audit Cycle discrepancies auto-generate a report; closing updates statuses.
 - [ ] RBAC enforced on every API route.
 - [ ] Every list/table screen needs loading, empty, and error states.
 

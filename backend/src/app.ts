@@ -10,6 +10,8 @@ import assetRoutes from './routes/asset.routes';
 import allocationRoutes from './routes/allocation.routes';
 import bookingRoutes from './routes/booking.routes';
 import maintenanceRoutes from './routes/maintenance.routes';
+import auditRoutes from './routes/audit.routes';
+import reportsRoutes from './routes/reports.routes';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
 
 const app = express();
@@ -32,7 +34,9 @@ app.use('/api/categories', categoryRoutes);
 app.use('/api/assets', assetRoutes);
 app.use('/api/allocations', allocationRoutes);
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/audit', auditRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
+app.use('/api/reports', reportsRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
