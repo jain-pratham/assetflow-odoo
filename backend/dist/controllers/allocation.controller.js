@@ -11,6 +11,7 @@ const Asset_1 = __importDefault(require("../models/Asset"));
 const allocation_validator_1 = require("../validators/allocation.validator");
 const apiResponse_1 = require("../utils/apiResponse");
 const User_1 = require("../models/User");
+const notification_service_1 = require("../services/notification.service");
 class AllocationController {
     /**
      * Helper to build the RBAC query for reading allocations
@@ -144,6 +145,24 @@ class AllocationController {
                     remarks: validatedData.remarks
                 }], { session });
             await session.commitTransaction();
+            // Notifications & Activity
+            await notification_service_1.NotificationService.createNotification({
+                title: 'Asset Allocated',
+                message: `You have been allocated a new asset: ${asset.name} (${asset.tag}).`,
+                type: 'ALLOCATION',
+                priority: 'MEDIUM',
+                recipient: validatedData.employeeId,
+                entityType: 'Allocation',
+                entityId: allocation[0]._id,
+                actionUrl: `/allocations`
+            });
+            await notification_service_1.NotificationService.logActivity({
+                actor: req.user._id,
+                action: 'ALLOCATED_ASSET',
+                target: asset.tag,
+                entityType: 'Allocation',
+                entityId: allocation[0]._id
+            });
             return res.status(201).json((0, apiResponse_1.successResponse)('Asset allocated successfully', allocation[0]));
         }
         catch (error) {
@@ -201,6 +220,34 @@ class AllocationController {
                     remarks: validatedData.remarks
                 }], { session });
             await session.commitTransaction();
+            // Notify Old Employee
+            await notification_service_1.NotificationService.createNotification({
+                title: 'Asset Transferred',
+                message: `Your asset ${asset?.name} has been transferred to another employee.`,
+                type: 'TRANSFER',
+                priority: 'LOW',
+                recipient: oldEmployeeId,
+                entityType: 'Allocation',
+                entityId: allocation._id,
+            });
+            // Notify New Employee
+            await notification_service_1.NotificationService.createNotification({
+                title: 'Asset Received (Transfer)',
+                message: `You have received a transferred asset: ${asset?.name}.`,
+                type: 'TRANSFER',
+                priority: 'MEDIUM',
+                recipient: validatedData.newEmployeeId,
+                entityType: 'Allocation',
+                entityId: allocation._id,
+                actionUrl: '/allocations'
+            });
+            await notification_service_1.NotificationService.logActivity({
+                actor: req.user._id,
+                action: 'TRANSFERRED_ASSET',
+                target: asset?.tag,
+                entityType: 'Allocation',
+                entityId: allocation._id
+            });
             return res.status(200).json((0, apiResponse_1.successResponse)('Asset transferred successfully', allocation));
         }
         catch (error) {
@@ -252,6 +299,22 @@ class AllocationController {
                     remarks: validatedData.remarks
                 }], { session });
             await session.commitTransaction();
+            await notification_service_1.NotificationService.createNotification({
+                title: 'Asset Returned',
+                message: `Your asset ${asset?.name} has been successfully returned.`,
+                type: 'RETURN',
+                priority: 'LOW',
+                recipient: allocation.employeeId,
+                entityType: 'Allocation',
+                entityId: allocation._id,
+            });
+            await notification_service_1.NotificationService.logActivity({
+                actor: req.user._id,
+                action: 'RETURNED_ASSET',
+                target: asset?.tag,
+                entityType: 'Allocation',
+                entityId: allocation._id
+            });
             return res.status(200).json((0, apiResponse_1.successResponse)('Asset returned successfully', allocation));
         }
         catch (error) {

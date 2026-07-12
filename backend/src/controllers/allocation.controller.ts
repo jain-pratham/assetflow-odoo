@@ -6,6 +6,7 @@ import Asset from '../models/Asset';
 import { allocateAssetSchema, transferAssetSchema, returnAssetSchema } from '../validators/allocation.validator';
 import { successResponse, errorResponse } from '../utils/apiResponse';
 import { UserRole } from '../models/User';
+import { NotificationService } from '../services/notification.service';
 
 export class AllocationController {
   
@@ -149,6 +150,27 @@ export class AllocationController {
       }] as any, { session });
 
       await session.commitTransaction();
+
+      // Notifications & Activity
+      await NotificationService.createNotification({
+        title: 'Asset Allocated',
+        message: `You have been allocated a new asset: ${asset.name} (${asset.tag}).`,
+        type: 'ALLOCATION',
+        priority: 'MEDIUM',
+        recipient: validatedData.employeeId,
+        entityType: 'Allocation',
+        entityId: allocation[0]._id as unknown as string,
+        actionUrl: `/allocations`
+      });
+
+      await NotificationService.logActivity({
+        actor: req.user!._id as unknown as string,
+        action: 'ALLOCATED_ASSET',
+        target: asset.tag,
+        entityType: 'Allocation',
+        entityId: allocation[0]._id as unknown as string
+      });
+
       return res.status(201).json(successResponse('Asset allocated successfully', allocation[0]));
     } catch (error: any) {
       await session.abortTransaction();
@@ -210,6 +232,38 @@ export class AllocationController {
       }] as any, { session });
 
       await session.commitTransaction();
+
+      // Notify Old Employee
+      await NotificationService.createNotification({
+        title: 'Asset Transferred',
+        message: `Your asset ${asset?.name} has been transferred to another employee.`,
+        type: 'TRANSFER',
+        priority: 'LOW',
+        recipient: oldEmployeeId as any,
+        entityType: 'Allocation',
+        entityId: allocation._id as unknown as string,
+      });
+
+      // Notify New Employee
+      await NotificationService.createNotification({
+        title: 'Asset Received (Transfer)',
+        message: `You have received a transferred asset: ${asset?.name}.`,
+        type: 'TRANSFER',
+        priority: 'MEDIUM',
+        recipient: validatedData.newEmployeeId,
+        entityType: 'Allocation',
+        entityId: allocation._id as unknown as string,
+        actionUrl: '/allocations'
+      });
+
+      await NotificationService.logActivity({
+        actor: req.user!._id as unknown as string,
+        action: 'TRANSFERRED_ASSET',
+        target: asset?.tag,
+        entityType: 'Allocation',
+        entityId: allocation._id as unknown as string
+      });
+
       return res.status(200).json(successResponse('Asset transferred successfully', allocation));
     } catch (error: any) {
       await session.abortTransaction();
@@ -264,6 +318,25 @@ export class AllocationController {
       }] as any, { session });
 
       await session.commitTransaction();
+
+      await NotificationService.createNotification({
+        title: 'Asset Returned',
+        message: `Your asset ${asset?.name} has been successfully returned.`,
+        type: 'RETURN',
+        priority: 'LOW',
+        recipient: allocation.employeeId as any,
+        entityType: 'Allocation',
+        entityId: allocation._id as unknown as string,
+      });
+
+      await NotificationService.logActivity({
+        actor: req.user!._id as unknown as string,
+        action: 'RETURNED_ASSET',
+        target: asset?.tag,
+        entityType: 'Allocation',
+        entityId: allocation._id as unknown as string
+      });
+
       return res.status(200).json(successResponse('Asset returned successfully', allocation));
     } catch (error: any) {
       await session.abortTransaction();

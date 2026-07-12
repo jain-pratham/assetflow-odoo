@@ -5,12 +5,13 @@ import { UserRole } from '../models/User';
 
 const router = Router();
 
-// Protect all user routes and restrict them to ADMIN only
+// Protect all user routes
 router.use(protect);
-router.use(authorize(UserRole.ADMIN));
 
 router.get('/', UserController.getUsers);
 router.get('/:id', UserController.getUserById);
+
+router.use(authorize(UserRole.ADMIN));
 router.put('/:id', UserController.updateUser);
 router.patch('/:id/status', UserController.updateUserStatus);
 

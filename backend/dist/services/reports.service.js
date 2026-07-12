@@ -128,7 +128,7 @@ class ReportsService {
         const data = await Maintenance_1.default.find(query)
             .populate('assetId', 'name tag')
             .populate('reportedBy', 'firstName lastName')
-            .populate('technicianId', 'firstName lastName')
+            .populate('assignedTechnicianId', 'firstName lastName')
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit)

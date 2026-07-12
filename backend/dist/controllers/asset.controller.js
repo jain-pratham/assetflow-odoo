@@ -8,6 +8,7 @@ const Asset_1 = __importDefault(require("../models/Asset"));
 const asset_validator_1 = require("../validators/asset.validator");
 const apiResponse_1 = require("../utils/apiResponse");
 const User_1 = require("../models/User");
+const notification_service_1 = require("../services/notification.service");
 class AssetController {
     /**
      * Helper to build the RBAC base query for Assets
@@ -104,6 +105,27 @@ class AssetController {
             if (existingTag)
                 return res.status(409).json((0, apiResponse_1.errorResponse)('Asset tag already exists'));
             const asset = await Asset_1.default.create(validatedData);
+            // Notify Admins
+            const admins = await User_1.User.find({ role: User_1.UserRole.ADMIN, status: 'ACTIVE' });
+            for (const admin of admins) {
+                await notification_service_1.NotificationService.createNotification({
+                    title: 'New Asset Registered',
+                    message: `Asset ${asset.name} (${asset.tag}) has been registered.`,
+                    type: 'ASSET',
+                    priority: 'LOW',
+                    recipient: admin._id,
+                    entityType: 'Asset',
+                    entityId: asset._id,
+                    actionUrl: `/assets/${asset._id}`
+                });
+            }
+            await notification_service_1.NotificationService.logActivity({
+                actor: req.user._id,
+                action: 'CREATED_ASSET',
+                target: asset.tag,
+                entityType: 'Asset',
+                entityId: asset._id
+            });
             return res.status(201).json((0, apiResponse_1.successResponse)('Asset created successfully', asset));
         }
         catch (error) {
@@ -124,6 +146,13 @@ class AssetController {
                     return res.status(409).json((0, apiResponse_1.errorResponse)('Asset tag already exists'));
             }
             const updatedAsset = await Asset_1.default.findByIdAndUpdate(req.params.id, { $set: validatedData }, { new: true });
+            await notification_service_1.NotificationService.logActivity({
+                actor: req.user._id,
+                action: 'UPDATED_ASSET',
+                target: updatedAsset.tag,
+                entityType: 'Asset',
+                entityId: updatedAsset._id
+            });
             return res.status(200).json((0, apiResponse_1.successResponse)('Asset updated successfully', updatedAsset));
         }
         catch (error) {
@@ -143,6 +172,13 @@ class AssetController {
                 return res.status(404).json((0, apiResponse_1.errorResponse)('Asset not found'));
             asset.status = status;
             await asset.save();
+            await notification_service_1.NotificationService.logActivity({
+                actor: req.user._id,
+                action: 'CHANGED_ASSET_STATUS',
+                target: `${asset.tag} to ${status}`,
+                entityType: 'Asset',
+                entityId: asset._id
+            });
             return res.status(200).json((0, apiResponse_1.successResponse)(`Asset status updated to ${status}`, asset));
         }
         catch (error) {

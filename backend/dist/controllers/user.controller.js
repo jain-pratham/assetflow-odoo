@@ -4,6 +4,7 @@ exports.UserController = void 0;
 const User_1 = require("../models/User");
 const RoleHistory_1 = require("../models/RoleHistory");
 const apiResponse_1 = require("../utils/apiResponse");
+const notification_service_1 = require("../services/notification.service");
 const zod_1 = require("zod");
 const updateUserSchema = zod_1.z.object({
     departmentId: zod_1.z.string().nullable().optional(),
@@ -105,6 +106,21 @@ class UserController {
                     oldRole,
                     newRole,
                     changedBy: req.user._id
+                });
+                await notification_service_1.NotificationService.createNotification({
+                    title: 'Role Updated',
+                    message: `Your role has been updated from ${oldRole} to ${newRole}.`,
+                    type: 'ROLE',
+                    priority: 'HIGH',
+                    recipient: user._id,
+                    actionUrl: '/profile'
+                });
+                await notification_service_1.NotificationService.logActivity({
+                    actor: req.user._id,
+                    action: 'UPDATED_ROLE',
+                    target: user.email,
+                    entityType: 'User',
+                    entityId: user._id
                 });
             }
             const updatedUser = await User_1.User.findById(id).select('-passwordHash -refreshTokenHash').populate('departmentId', 'name code');

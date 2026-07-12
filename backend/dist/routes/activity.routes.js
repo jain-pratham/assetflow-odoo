@@ -1,0 +1,11 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const activity_controller_1 = require("../controllers/activity.controller");
+const auth_middleware_1 = require("../middleware/auth.middleware");
+const User_1 = require("../models/User");
+const router = (0, express_1.Router)();
+router.use(auth_middleware_1.protect);
+router.use((0, auth_middleware_1.authorize)(User_1.UserRole.ADMIN));
+router.get('/', activity_controller_1.ActivityLogController.getLogs);
+exports.default = router;

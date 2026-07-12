@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from 'express';
 import { AuthService } from '../services/auth.service';
 import { successResponse, errorResponse } from '../utils/apiResponse';
 import jwt from 'jsonwebtoken';
+import { NotificationService } from '../services/notification.service';
+import { MailService } from '../services/mail.service';
 
 export class AuthController {
   static async signup(req: Request, res: Response, next: NextFunction) {
@@ -13,6 +15,14 @@ export class AuthController {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      });
+
+      await NotificationService.createNotification({
+        title: 'Welcome to AssetFlow',
+        message: 'Your account has been created successfully. Welcome aboard!',
+        type: 'USER',
+        recipient: user._id as unknown as string,
+        actionUrl: '/profile'
       });
 
       res.status(201).json(successResponse('User created successfully', { user, accessToken }));
@@ -28,7 +38,7 @@ export class AuthController {
       res.cookie('refreshToken', refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
       });
 
@@ -50,7 +60,7 @@ export class AuthController {
       res.cookie('refreshToken', newRefreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
+        sameSite: 'lax',
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
@@ -87,8 +97,16 @@ export class AuthController {
   static async forgotPassword(req: Request, res: Response, next: NextFunction) {
     try {
       const token = await AuthService.forgotPassword(req.body.email);
-      // In a real app, send an email here.
-      console.log(`[MOCK EMAIL] Reset link: ${process.env.FRONTEND_URL}/reset-password?token=${token}`);
+      const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3000'}/reset-password?token=${token}`;
+      const html = `
+        <div style="font-family: sans-serif; padding: 20px;">
+          <h2>Password Reset Request</h2>
+          <p>You requested a password reset. Click the button below to reset your password.</p>
+          <a href="${resetUrl}" style="display:inline-block; padding: 10px 15px; background: #3b82f6; color: #fff; text-decoration: none; border-radius: 5px;">Reset Password</a>
+          <p>If you did not request this, please ignore this email.</p>
+        </div>
+      `;
+      MailService.sendEmail(req.body.email, '[AssetFlow] Password Reset', html);
       
       res.status(200).json(successResponse('If the email is registered, a reset link will be sent.'));
     } catch (error) {

@@ -12,6 +12,7 @@ const Asset_1 = __importDefault(require("../models/Asset"));
 const audit_validator_1 = require("../validators/audit.validator");
 const apiResponse_1 = require("../utils/apiResponse");
 const User_1 = require("../models/User");
+const notification_service_1 = require("../services/notification.service");
 // ── Helpers ───────────────────────────────────────────────────────────────────
 async function generateAuditNumber() {
     const count = await Audit_1.default.countDocuments();
@@ -241,6 +242,23 @@ class AuditController {
                 .populate('categoryId', 'name')
                 .populate('assignedAuditor', 'firstName lastName')
                 .lean();
+            await notification_service_1.NotificationService.createNotification({
+                title: 'Audit Assigned',
+                message: `You have been assigned to perform Audit ${auditNumber}.`,
+                type: 'AUDIT',
+                priority: 'HIGH',
+                recipient: data.assignedAuditor,
+                entityType: 'Audit',
+                entityId: audit._id,
+                actionUrl: '/audit',
+            });
+            await notification_service_1.NotificationService.logActivity({
+                actor: req.user._id,
+                action: 'CREATED_AUDIT',
+                target: auditNumber,
+                entityType: 'Audit',
+                entityId: audit._id
+            });
             return res.status(201).json((0, apiResponse_1.successResponse)('Audit started successfully', { ...populated, assetCount: assets.length }));
         }
         catch (error) {
@@ -379,6 +397,23 @@ class AuditController {
                     remarks: data.remarks || 'Audit completed',
                 }], { session });
             await session.commitTransaction();
+            await notification_service_1.NotificationService.createNotification({
+                title: 'Audit Completed',
+                message: `Audit ${audit.auditNumber} has been marked as completed.`,
+                type: 'AUDIT',
+                priority: 'MEDIUM',
+                recipient: audit.createdBy.toString(),
+                entityType: 'Audit',
+                entityId: audit._id,
+                actionUrl: '/audit',
+            });
+            await notification_service_1.NotificationService.logActivity({
+                actor: req.user._id,
+                action: 'COMPLETED_AUDIT',
+                target: audit.auditNumber,
+                entityType: 'Audit',
+                entityId: audit._id
+            });
             return res.status(200).json((0, apiResponse_1.successResponse)('Audit completed successfully', audit));
         }
         catch (error) {

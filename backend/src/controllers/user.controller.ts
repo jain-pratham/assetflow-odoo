@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { User, UserRole, UserStatus } from '../models/User';
 import { RoleHistory } from '../models/RoleHistory';
 import { successResponse, errorResponse } from '../utils/apiResponse';
+import { NotificationService } from '../services/notification.service';
 import { z } from 'zod';
 
 const updateUserSchema = z.object({
@@ -120,6 +121,23 @@ export class UserController {
           oldRole,
           newRole,
           changedBy: req.user!._id
+        });
+
+        await NotificationService.createNotification({
+          title: 'Role Updated',
+          message: `Your role has been updated from ${oldRole} to ${newRole}.`,
+          type: 'ROLE',
+          priority: 'HIGH',
+          recipient: user._id as unknown as string,
+          actionUrl: '/profile'
+        });
+        
+        await NotificationService.logActivity({
+          actor: req.user!._id as unknown as string,
+          action: 'UPDATED_ROLE',
+          target: user.email,
+          entityType: 'User',
+          entityId: user._id as unknown as string
         });
       }
 

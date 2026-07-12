@@ -3,7 +3,8 @@ import mongoose from 'mongoose';
 import Maintenance, { MaintenanceStatus } from '../models/Maintenance';
 import MaintenanceHistory, { MaintenanceHistoryAction } from '../models/MaintenanceHistory';
 import Asset from '../models/Asset';
-import { UserRole } from '../models/User';
+import { User, UserRole } from '../models/User';
+import { NotificationService } from '../services/notification.service';
 import {
   assignMaintenanceSchema,
   createMaintenanceSchema,
@@ -118,7 +119,7 @@ export class MaintenanceController {
       if (req.query.status) query.status = req.query.status;
       if (req.query.departmentId) query.departmentId = req.query.departmentId;
       if (req.query.categoryId) query.categoryId = req.query.categoryId;
-      if (req.query.technicianId) query.assignedTechnicianId = req.query.technicianId;
+      if (req.query.assignedTechnicianId) query.assignedTechnicianId = req.query.assignedTechnicianId;
       if (req.query.priority) query.priority = req.query.priority;
       if (req.query.search) {
         query.$or = [
@@ -308,6 +309,29 @@ export class MaintenanceController {
         .populate('reportedBy', 'firstName lastName')
         .lean();
 
+      // Notify Admins and Asset Managers
+      const approvers = await User.find({ role: { $in: [UserRole.ADMIN, UserRole.ASSET_MANAGER] }, status: 'ACTIVE' });
+      for (const approver of approvers) {
+        await NotificationService.createNotification({
+          title: 'New Maintenance Request',
+          message: `${(populated as any).reportedBy.firstName} requested maintenance for ${(populated as any).assetId.name}.`,
+          type: 'MAINTENANCE',
+          priority: 'MEDIUM',
+          recipient: approver._id as unknown as string,
+          entityType: 'Maintenance',
+          entityId: maintenance._id as unknown as string,
+          actionUrl: '/maintenance',
+        });
+      }
+
+      await NotificationService.logActivity({
+        actor: req.user!._id as unknown as string,
+        action: 'REQUESTED_MAINTENANCE',
+        target: (populated as any).assetId.name,
+        entityType: 'Maintenance',
+        entityId: maintenance._id as unknown as string
+      });
+
       return res.status(201).json(successResponse('Maintenance request created successfully', populated));
     } catch (error: any) {
       await session.abortTransaction();
@@ -338,6 +362,25 @@ export class MaintenanceController {
 
       await createHistory(maintenance, 'ASSIGNED', req.user!._id, data.remarks, session);
       await session.commitTransaction();
+
+      await NotificationService.createNotification({
+        title: 'Maintenance Assigned',
+        message: `You have been assigned a new maintenance task: ${maintenance.requestId}.`,
+        type: 'MAINTENANCE',
+        priority: 'HIGH',
+        recipient: data.assignedTechnicianId,
+        entityType: 'Maintenance',
+        entityId: maintenance._id as unknown as string,
+        actionUrl: '/maintenance',
+      });
+
+      await NotificationService.logActivity({
+        actor: req.user!._id as unknown as string,
+        action: 'ASSIGNED_TECHNICIAN',
+        target: maintenance.requestId,
+        entityType: 'Maintenance',
+        entityId: maintenance._id as unknown as string
+      });
 
       return res.status(200).json(successResponse('Technician assigned successfully', maintenance));
     } catch (error: any) {
@@ -392,6 +435,28 @@ export class MaintenanceController {
 
       await createHistory(maintenance, actionForStatus(data.status), req.user!._id, data.remarks, session);
       await session.commitTransaction();
+
+      // If status changed to COMPLETED or CANCELLED, notify the reporter
+      if (['COMPLETED', 'CANCELLED'].includes(data.status)) {
+        await NotificationService.createNotification({
+          title: `Maintenance ${data.status}`,
+          message: `Your maintenance request ${maintenance.requestId} has been ${data.status.toLowerCase()}.`,
+          type: 'MAINTENANCE',
+          priority: 'MEDIUM',
+          recipient: maintenance.reportedBy.toString(),
+          entityType: 'Maintenance',
+          entityId: maintenance._id as unknown as string,
+          actionUrl: '/maintenance',
+        });
+      }
+
+      await NotificationService.logActivity({
+        actor: req.user!._id as unknown as string,
+        action: `UPDATED_MAINTENANCE_STATUS_${data.status}`,
+        target: maintenance.requestId,
+        entityType: 'Maintenance',
+        entityId: maintenance._id as unknown as string
+      });
 
       return res.status(200).json(successResponse('Maintenance status updated successfully', maintenance));
     } catch (error: any) {

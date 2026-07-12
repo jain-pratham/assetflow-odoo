@@ -5,12 +5,12 @@ import { UserRole } from '../models/User';
 
 const router = Router();
 
-// Protect all category routes and restrict them to ADMIN only
 router.use(protect);
-router.use(authorize(UserRole.ADMIN));
 
 router.get('/', CategoryController.getCategories);
 router.get('/:id', CategoryController.getCategoryById);
+
+router.use(authorize(UserRole.ADMIN));
 router.post('/', CategoryController.createCategory);
 router.put('/:id', CategoryController.updateCategory);
 router.patch('/:id/status', CategoryController.toggleCategoryStatus);

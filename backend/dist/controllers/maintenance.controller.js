@@ -9,6 +9,7 @@ const Maintenance_1 = __importDefault(require("../models/Maintenance"));
 const MaintenanceHistory_1 = __importDefault(require("../models/MaintenanceHistory"));
 const Asset_1 = __importDefault(require("../models/Asset"));
 const User_1 = require("../models/User");
+const notification_service_1 = require("../services/notification.service");
 const maintenance_validator_1 = require("../validators/maintenance.validator");
 const apiResponse_1 = require("../utils/apiResponse");
 const MANAGER_ROLES = [User_1.UserRole.ADMIN, User_1.UserRole.ASSET_MANAGER];
@@ -113,8 +114,8 @@ class MaintenanceController {
                 query.departmentId = req.query.departmentId;
             if (req.query.categoryId)
                 query.categoryId = req.query.categoryId;
-            if (req.query.technicianId)
-                query.assignedTechnicianId = req.query.technicianId;
+            if (req.query.assignedTechnicianId)
+                query.assignedTechnicianId = req.query.assignedTechnicianId;
             if (req.query.priority)
                 query.priority = req.query.priority;
             if (req.query.search) {
@@ -296,6 +297,27 @@ class MaintenanceController {
                 .populate('departmentId', 'name')
                 .populate('reportedBy', 'firstName lastName')
                 .lean();
+            // Notify Admins and Asset Managers
+            const approvers = await User_1.User.find({ role: { $in: [User_1.UserRole.ADMIN, User_1.UserRole.ASSET_MANAGER] }, status: 'ACTIVE' });
+            for (const approver of approvers) {
+                await notification_service_1.NotificationService.createNotification({
+                    title: 'New Maintenance Request',
+                    message: `${populated.reportedBy.firstName} requested maintenance for ${populated.assetId.name}.`,
+                    type: 'MAINTENANCE',
+                    priority: 'MEDIUM',
+                    recipient: approver._id,
+                    entityType: 'Maintenance',
+                    entityId: maintenance._id,
+                    actionUrl: '/maintenance',
+                });
+            }
+            await notification_service_1.NotificationService.logActivity({
+                actor: req.user._id,
+                action: 'REQUESTED_MAINTENANCE',
+                target: populated.assetId.name,
+                entityType: 'Maintenance',
+                entityId: maintenance._id
+            });
             return res.status(201).json((0, apiResponse_1.successResponse)('Maintenance request created successfully', populated));
         }
         catch (error) {
@@ -327,6 +349,23 @@ class MaintenanceController {
             await maintenance.save({ session });
             await createHistory(maintenance, 'ASSIGNED', req.user._id, data.remarks, session);
             await session.commitTransaction();
+            await notification_service_1.NotificationService.createNotification({
+                title: 'Maintenance Assigned',
+                message: `You have been assigned a new maintenance task: ${maintenance.requestId}.`,
+                type: 'MAINTENANCE',
+                priority: 'HIGH',
+                recipient: data.assignedTechnicianId,
+                entityType: 'Maintenance',
+                entityId: maintenance._id,
+                actionUrl: '/maintenance',
+            });
+            await notification_service_1.NotificationService.logActivity({
+                actor: req.user._id,
+                action: 'ASSIGNED_TECHNICIAN',
+                target: maintenance.requestId,
+                entityType: 'Maintenance',
+                entityId: maintenance._id
+            });
             return res.status(200).json((0, apiResponse_1.successResponse)('Technician assigned successfully', maintenance));
         }
         catch (error) {
@@ -378,6 +417,26 @@ class MaintenanceController {
             await maintenance.save({ session });
             await createHistory(maintenance, actionForStatus(data.status), req.user._id, data.remarks, session);
             await session.commitTransaction();
+            // If status changed to COMPLETED or CANCELLED, notify the reporter
+            if (['COMPLETED', 'CANCELLED'].includes(data.status)) {
+                await notification_service_1.NotificationService.createNotification({
+                    title: `Maintenance ${data.status}`,
+                    message: `Your maintenance request ${maintenance.requestId} has been ${data.status.toLowerCase()}.`,
+                    type: 'MAINTENANCE',
+                    priority: 'MEDIUM',
+                    recipient: maintenance.reportedBy.toString(),
+                    entityType: 'Maintenance',
+                    entityId: maintenance._id,
+                    actionUrl: '/maintenance',
+                });
+            }
+            await notification_service_1.NotificationService.logActivity({
+                actor: req.user._id,
+                action: `UPDATED_MAINTENANCE_STATUS_${data.status}`,
+                target: maintenance.requestId,
+                entityType: 'Maintenance',
+                entityId: maintenance._id
+            });
             return res.status(200).json((0, apiResponse_1.successResponse)('Maintenance status updated successfully', maintenance));
         }
         catch (error) {

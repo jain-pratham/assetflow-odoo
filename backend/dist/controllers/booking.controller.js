@@ -11,6 +11,7 @@ const Asset_1 = __importDefault(require("../models/Asset"));
 const booking_validator_1 = require("../validators/booking.validator");
 const apiResponse_1 = require("../utils/apiResponse");
 const User_1 = require("../models/User");
+const notification_service_1 = require("../services/notification.service");
 // Helper: convert "HH:MM" to total minutes from midnight
 function timeToMinutes(time) {
     const [h, m] = time.split(':').map(Number);
@@ -272,6 +273,27 @@ class BookingController {
                 .populate('employeeId', 'firstName lastName')
                 .populate('departmentId', 'name')
                 .lean();
+            // Notify Admins and Asset Managers
+            const approvers = await User_1.User.find({ role: { $in: [User_1.UserRole.ADMIN, User_1.UserRole.ASSET_MANAGER] }, status: 'ACTIVE' });
+            for (const approver of approvers) {
+                await notification_service_1.NotificationService.createNotification({
+                    title: 'New Booking Request',
+                    message: `${populated.employeeId.firstName} requested to book ${populated.resourceId.name}.`,
+                    type: 'BOOKING',
+                    priority: 'MEDIUM',
+                    recipient: approver._id,
+                    entityType: 'Booking',
+                    entityId: booking._id,
+                    actionUrl: '/booking',
+                });
+            }
+            await notification_service_1.NotificationService.logActivity({
+                actor: req.user._id,
+                action: 'REQUESTED_BOOKING',
+                target: populated.resourceId.name,
+                entityType: 'Booking',
+                entityId: booking._id
+            });
             return res.status(201).json((0, apiResponse_1.successResponse)('Booking request created successfully', populated));
         }
         catch (error) {
@@ -308,6 +330,22 @@ class BookingController {
                     remarks: validatedData.remarks,
                 }], { session });
             await session.commitTransaction();
+            await notification_service_1.NotificationService.createNotification({
+                title: 'Booking Approved',
+                message: `Your booking request has been approved.`,
+                type: 'BOOKING',
+                priority: 'HIGH',
+                recipient: booking.employeeId.toString(),
+                entityType: 'Booking',
+                entityId: booking._id,
+                actionUrl: '/booking',
+            });
+            await notification_service_1.NotificationService.logActivity({
+                actor: req.user._id,
+                action: 'APPROVED_BOOKING',
+                entityType: 'Booking',
+                entityId: booking._id
+            });
             return res.status(200).json((0, apiResponse_1.successResponse)('Booking approved successfully', booking));
         }
         catch (error) {
@@ -338,6 +376,22 @@ class BookingController {
                     remarks: validatedData.remarks,
                 }], { session });
             await session.commitTransaction();
+            await notification_service_1.NotificationService.createNotification({
+                title: 'Booking Rejected',
+                message: `Your booking request was rejected. Reason: ${validatedData.remarks || 'None provided'}`,
+                type: 'BOOKING',
+                priority: 'HIGH',
+                recipient: booking.employeeId.toString(),
+                entityType: 'Booking',
+                entityId: booking._id,
+                actionUrl: '/booking',
+            });
+            await notification_service_1.NotificationService.logActivity({
+                actor: req.user._id,
+                action: 'REJECTED_BOOKING',
+                entityType: 'Booking',
+                entityId: booking._id
+            });
             return res.status(200).json((0, apiResponse_1.successResponse)('Booking rejected', booking));
         }
         catch (error) {
@@ -384,6 +438,25 @@ class BookingController {
                     remarks: validatedData.remarks,
                 }], { session });
             await session.commitTransaction();
+            // Only notify if someone else cancelled it
+            if (booking.employeeId.toString() !== req.user._id.toString()) {
+                await notification_service_1.NotificationService.createNotification({
+                    title: 'Booking Cancelled',
+                    message: `Your booking has been cancelled. Reason: ${validatedData.remarks || 'None provided'}`,
+                    type: 'BOOKING',
+                    priority: 'MEDIUM',
+                    recipient: booking.employeeId.toString(),
+                    entityType: 'Booking',
+                    entityId: booking._id,
+                    actionUrl: '/booking',
+                });
+            }
+            await notification_service_1.NotificationService.logActivity({
+                actor: req.user._id,
+                action: 'CANCELLED_BOOKING',
+                entityType: 'Booking',
+                entityId: booking._id
+            });
             return res.status(200).json((0, apiResponse_1.successResponse)('Booking cancelled', booking));
         }
         catch (error) {

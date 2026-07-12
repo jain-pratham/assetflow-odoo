@@ -5,7 +5,8 @@ import BookingHistory from '../models/BookingHistory';
 import Asset from '../models/Asset';
 import { createBookingSchema, approveRejectBookingSchema, cancelBookingSchema } from '../validators/booking.validator';
 import { successResponse, errorResponse } from '../utils/apiResponse';
-import { UserRole } from '../models/User';
+import { User, UserRole } from '../models/User';
+import { NotificationService } from '../services/notification.service';
 
 // Helper: convert "HH:MM" to total minutes from midnight
 function timeToMinutes(time: string): number {
@@ -298,6 +299,29 @@ export class BookingController {
         .populate('departmentId', 'name')
         .lean();
 
+      // Notify Admins and Asset Managers
+      const approvers = await User.find({ role: { $in: [UserRole.ADMIN, UserRole.ASSET_MANAGER] }, status: 'ACTIVE' });
+      for (const approver of approvers) {
+        await NotificationService.createNotification({
+          title: 'New Booking Request',
+          message: `${(populated as any).employeeId.firstName} requested to book ${(populated as any).resourceId.name}.`,
+          type: 'BOOKING',
+          priority: 'MEDIUM',
+          recipient: approver._id as unknown as string,
+          entityType: 'Booking',
+          entityId: booking._id as unknown as string,
+          actionUrl: '/booking',
+        });
+      }
+
+      await NotificationService.logActivity({
+        actor: req.user!._id as unknown as string,
+        action: 'REQUESTED_BOOKING',
+        target: (populated as any).resourceId.name,
+        entityType: 'Booking',
+        entityId: booking._id as unknown as string
+      });
+
       return res.status(201).json(successResponse('Booking request created successfully', populated));
     } catch (error: any) {
       await session.abortTransaction();
@@ -335,6 +359,25 @@ export class BookingController {
       }] as any, { session });
 
       await session.commitTransaction();
+
+      await NotificationService.createNotification({
+        title: 'Booking Approved',
+        message: `Your booking request has been approved.`,
+        type: 'BOOKING',
+        priority: 'HIGH',
+        recipient: booking.employeeId.toString(),
+        entityType: 'Booking',
+        entityId: booking._id as unknown as string,
+        actionUrl: '/booking',
+      });
+
+      await NotificationService.logActivity({
+        actor: req.user!._id as unknown as string,
+        action: 'APPROVED_BOOKING',
+        entityType: 'Booking',
+        entityId: booking._id as unknown as string
+      });
+
       return res.status(200).json(successResponse('Booking approved successfully', booking));
     } catch (error: any) {
       await session.abortTransaction();
@@ -366,6 +409,25 @@ export class BookingController {
       }] as any, { session });
 
       await session.commitTransaction();
+
+      await NotificationService.createNotification({
+        title: 'Booking Rejected',
+        message: `Your booking request was rejected. Reason: ${validatedData.remarks || 'None provided'}`,
+        type: 'BOOKING',
+        priority: 'HIGH',
+        recipient: booking.employeeId.toString(),
+        entityType: 'Booking',
+        entityId: booking._id as unknown as string,
+        actionUrl: '/booking',
+      });
+
+      await NotificationService.logActivity({
+        actor: req.user!._id as unknown as string,
+        action: 'REJECTED_BOOKING',
+        entityType: 'Booking',
+        entityId: booking._id as unknown as string
+      });
+
       return res.status(200).json(successResponse('Booking rejected', booking));
     } catch (error: any) {
       await session.abortTransaction();
@@ -415,6 +477,28 @@ export class BookingController {
       }] as any, { session });
 
       await session.commitTransaction();
+
+      // Only notify if someone else cancelled it
+      if (booking.employeeId.toString() !== req.user!._id.toString()) {
+        await NotificationService.createNotification({
+          title: 'Booking Cancelled',
+          message: `Your booking has been cancelled. Reason: ${validatedData.remarks || 'None provided'}`,
+          type: 'BOOKING',
+          priority: 'MEDIUM',
+          recipient: booking.employeeId.toString(),
+          entityType: 'Booking',
+          entityId: booking._id as unknown as string,
+          actionUrl: '/booking',
+        });
+      }
+
+      await NotificationService.logActivity({
+        actor: req.user!._id as unknown as string,
+        action: 'CANCELLED_BOOKING',
+        entityType: 'Booking',
+        entityId: booking._id as unknown as string
+      });
+
       return res.status(200).json(successResponse('Booking cancelled', booking));
     } catch (error: any) {
       await session.abortTransaction();

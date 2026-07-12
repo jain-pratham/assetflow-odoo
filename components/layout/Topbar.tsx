@@ -8,6 +8,7 @@ import { RootState } from '@/store/store';
 import { useRouteMeta } from '@/hooks/useRouteMeta';
 import { logout } from '@/store/authSlice';
 import Link from 'next/link';
+import { NotificationBell } from './NotificationBell';
 
 export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   const { theme, setTheme } = useTheme();
@@ -54,10 +55,7 @@ export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
         </button>
         
         {/* Notification Bell */}
-        <button className="relative p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted">
-          <Bell className="w-5 h-5" />
-          <span className="absolute top-1 right-1.5 w-2 h-2 bg-rose-500 rounded-full animate-pulse border border-background"></span>
-        </button>
+        <NotificationBell />
         
         {/* Profile Dropdown */}
         <div className="relative">

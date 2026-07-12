@@ -7,6 +7,7 @@ import Asset from '../models/Asset';
 import { createAuditSchema, verifyAssetSchema, completeAuditSchema } from '../validators/audit.validator';
 import { successResponse, errorResponse } from '../utils/apiResponse';
 import { UserRole } from '../models/User';
+import { NotificationService } from '../services/notification.service';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 async function generateAuditNumber(): Promise<string> {
@@ -264,6 +265,25 @@ export class AuditController {
         .populate('assignedAuditor', 'firstName lastName')
         .lean();
 
+      await NotificationService.createNotification({
+        title: 'Audit Assigned',
+        message: `You have been assigned to perform Audit ${auditNumber}.`,
+        type: 'AUDIT',
+        priority: 'HIGH',
+        recipient: data.assignedAuditor,
+        entityType: 'Audit',
+        entityId: audit._id as unknown as string,
+        actionUrl: '/audit',
+      });
+
+      await NotificationService.logActivity({
+        actor: req.user!._id as unknown as string,
+        action: 'CREATED_AUDIT',
+        target: auditNumber,
+        entityType: 'Audit',
+        entityId: audit._id as unknown as string
+      });
+
       return res.status(201).json(successResponse('Audit started successfully', { ...populated, assetCount: assets.length }));
     } catch (error: any) {
       await session.abortTransaction();
@@ -405,6 +425,26 @@ export class AuditController {
       }] as any, { session });
 
       await session.commitTransaction();
+
+      await NotificationService.createNotification({
+        title: 'Audit Completed',
+        message: `Audit ${audit.auditNumber} has been marked as completed.`,
+        type: 'AUDIT',
+        priority: 'MEDIUM',
+        recipient: audit.createdBy.toString(),
+        entityType: 'Audit',
+        entityId: audit._id as unknown as string,
+        actionUrl: '/audit',
+      });
+
+      await NotificationService.logActivity({
+        actor: req.user!._id as unknown as string,
+        action: 'COMPLETED_AUDIT',
+        target: audit.auditNumber,
+        entityType: 'Audit',
+        entityId: audit._id as unknown as string
+      });
+
       return res.status(200).json(successResponse('Audit completed successfully', audit));
     } catch (error: any) {
       await session.abortTransaction();
