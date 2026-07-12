@@ -89,7 +89,7 @@ export class UserController {
 
       const validationResult = updateUserSchema.safeParse(req.body);
       if (!validationResult.success) {
-        return res.status(400).json(errorResponse('Validation failed', validationResult.error.errors));
+        return res.status(400).json(errorResponse('Validation failed', (validationResult.error as any).errors || []));
       }
 
       const data = validationResult.data;
@@ -140,7 +140,7 @@ export class UserController {
 
       const validationResult = updateStatusSchema.safeParse(req.body);
       if (!validationResult.success) {
-        return res.status(400).json(errorResponse('Validation failed', validationResult.error.errors));
+        return res.status(400).json(errorResponse('Validation failed', (validationResult.error as any).errors || []));
       }
 
       const user = await User.findById(id);

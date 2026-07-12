@@ -7,6 +7,7 @@ import userRoutes from './routes/user.routes';
 import departmentRoutes from './routes/department.routes';
 import categoryRoutes from './routes/category.routes';
 import assetRoutes from './routes/asset.routes';
+import allocationRoutes from './routes/allocation.routes';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
 
 const app = express();
@@ -27,6 +28,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/departments', departmentRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/assets', assetRoutes);
+app.use('/api/allocations', allocationRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

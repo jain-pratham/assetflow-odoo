@@ -24,7 +24,7 @@ class AuthService {
             phone: data.phone,
             role: User_1.UserRole.EMPLOYEE,
         });
-        const tokens = this.generateTokens(user.id);
+        const tokens = this.generateTokens(user);
         await this.updateRefreshToken(user, tokens.refreshToken);
         return {
             user: this.sanitizeUser(user),
@@ -45,7 +45,7 @@ class AuthService {
         }
         user.lastLogin = new Date();
         await user.save();
-        const tokens = this.generateTokens(user.id);
+        const tokens = this.generateTokens(user);
         await this.updateRefreshToken(user, tokens.refreshToken);
         return {
             user: this.sanitizeUser(user),
@@ -66,7 +66,7 @@ class AuthService {
             if (!isMatch) {
                 throw new Error('Invalid refresh token');
             }
-            const tokens = this.generateTokens(user.id);
+            const tokens = this.generateTokens(user);
             await this.updateRefreshToken(user, tokens.refreshToken);
             return {
                 accessToken: tokens.accessToken,
@@ -110,11 +110,11 @@ class AuthService {
         user.resetPasswordExpires = undefined;
         await user.save();
     }
-    static generateTokens(userId) {
-        const accessToken = jsonwebtoken_1.default.sign({ id: userId }, process.env.JWT_ACCESS_SECRET || 'secret', {
+    static generateTokens(user) {
+        const accessToken = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_ACCESS_SECRET || 'secret', {
             expiresIn: '15m',
         });
-        const refreshToken = jsonwebtoken_1.default.sign({ id: userId }, process.env.JWT_REFRESH_SECRET || 'refresh_secret', {
+        const refreshToken = jsonwebtoken_1.default.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET || 'refresh_secret', {
             expiresIn: '7d',
         });
         return { accessToken, refreshToken };

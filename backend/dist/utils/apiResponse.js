@@ -1,11 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.errorResponse = exports.successResponse = void 0;
-const successResponse = (message, data) => {
+const successResponse = (message, data, pagination) => {
     return {
         success: true,
         message,
         data,
+        ...(pagination && { pagination })
     };
 };
 exports.successResponse = successResponse;

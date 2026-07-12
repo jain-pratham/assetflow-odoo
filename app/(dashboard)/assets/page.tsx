@@ -13,7 +13,7 @@ import { MoreVertical, Search, X, Plus, Edit, Eye, Archive } from 'lucide-react'
 import api from '@/services/api';
 import { toast } from 'sonner';
 import { useSelector } from 'react-redux';
-import { RootState } from '@/store';
+import { RootState } from '@/store/store';
 import { ROLES } from '@/constants/roles';
 
 // Modal component for Asset Form
@@ -319,7 +319,7 @@ export default function AssetsPage() {
   const [selectedAsset, setSelectedAsset] = useState<any>(null);
 
   const { user } = useSelector((state: RootState) => state.auth);
-  const canEdit = [ROLES.ADMIN, ROLES.ASSET_MANAGER].includes(user?.role || '');
+  const canEdit = [ROLES.ADMIN, ROLES.ASSET_MANAGER].includes(user?.role as any);
 
   const fetchData = useCallback(async () => {
     try {

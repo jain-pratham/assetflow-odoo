@@ -1,8 +1,12 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const auth_service_1 = require("../services/auth.service");
 const apiResponse_1 = require("../utils/apiResponse");
+const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 class AuthController {
     static async signup(req, res, next) {
         try {
@@ -55,8 +59,18 @@ class AuthController {
     }
     static async logout(req, res, next) {
         try {
-            if (req.user) {
-                await auth_service_1.AuthService.logout(req.user.id);
+            let userId = req.user?._id?.toString();
+            if (!userId && req.cookies.refreshToken) {
+                try {
+                    const decoded = jsonwebtoken_1.default.verify(req.cookies.refreshToken, process.env.JWT_REFRESH_SECRET || 'refresh_secret');
+                    userId = decoded.id;
+                }
+                catch (e) {
+                    // Ignore invalid token
+                }
+            }
+            if (userId) {
+                await auth_service_1.AuthService.logout(userId);
             }
             res.clearCookie('refreshToken');
             res.status(200).json((0, apiResponse_1.successResponse)('Logged out successfully'));
@@ -92,6 +106,9 @@ class AuthController {
             if (!req.user) {
                 return res.status(401).json((0, apiResponse_1.errorResponse)('Not authorized'));
             }
+            res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+            res.setHeader('Pragma', 'no-cache');
+            res.setHeader('Expires', '0');
             res.status(200).json((0, apiResponse_1.successResponse)('User profile fetched', auth_service_1.AuthService.sanitizeUser(req.user)));
         }
         catch (error) {

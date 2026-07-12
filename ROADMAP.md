@@ -24,8 +24,8 @@
 - [x] Departments
 - [x] Categories
 - [x] Assets
-- [ ] Allocations
-- [ ] Transfers
+- [x] Allocations
+- [x] Transfers
 - [ ] Bookings
 - [ ] Maintenance
 - [ ] Audits

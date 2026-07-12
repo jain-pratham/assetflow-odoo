@@ -16,23 +16,24 @@ const defaultAdminSeeder = async () => {
             return;
         }
         const existingAdmin = await User_1.User.findOne({ email: adminEmail });
-        if (existingAdmin) {
-            error_middleware_1.logger.info('✓ Default administrator already exists.');
-            return;
-        }
         const hashedPassword = await bcrypt_1.default.hash(adminPassword, 10);
-        const newAdmin = new User_1.User({
+        const adminData = {
             firstName: process.env.ADMIN_FIRST_NAME || 'System',
             lastName: process.env.ADMIN_LAST_NAME || 'Administrator',
-            email: adminEmail,
             passwordHash: hashedPassword,
             phone: process.env.ADMIN_PHONE || '9999999999',
             role: User_1.UserRole.ADMIN,
             status: User_1.UserStatus.ACTIVE,
             isEmailVerified: true,
-            // You could also add a custom field `createdBySystem: true` if the schema had it,
-            // but according to the User schema, there is no `createdAutomatically` field.
-            // So we will stick strictly to the schema provided.
+        };
+        if (existingAdmin) {
+            await User_1.User.updateOne({ email: adminEmail }, { $set: adminData });
+            error_middleware_1.logger.info('✓ Default administrator credentials synced with .env');
+            return;
+        }
+        const newAdmin = new User_1.User({
+            email: adminEmail,
+            ...adminData
         });
         await newAdmin.save();
         error_middleware_1.logger.info('✓ Default administrator created successfully.');

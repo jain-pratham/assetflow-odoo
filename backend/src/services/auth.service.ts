@@ -130,10 +130,10 @@ export class AuthService {
   }
 
   private static generateTokens(user: IUser) {
-    const accessToken = jwt.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_ACCESS_SECRET || 'secret', {
+    const accessToken = jwt.sign({ id: user._id, email: user.email, role: user.role }, process.env.JWT_ACCESS_SECRET || 'secret', {
       expiresIn: '15m',
     });
-    const refreshToken = jwt.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET || 'refresh_secret', {
+    const refreshToken = jwt.sign({ id: user._id }, process.env.JWT_REFRESH_SECRET || 'refresh_secret', {
       expiresIn: '7d',
     });
     return { accessToken, refreshToken };

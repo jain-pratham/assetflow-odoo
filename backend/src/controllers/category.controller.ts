@@ -92,7 +92,7 @@ export class CategoryController {
         return res.status(409).json(errorResponse('Category code already exists'));
       }
 
-      const category = await Category.create(validatedData);
+      const category = await Category.create(validatedData as any);
 
       return res.status(201).json(successResponse('Category created successfully', category));
     } catch (error: any) {

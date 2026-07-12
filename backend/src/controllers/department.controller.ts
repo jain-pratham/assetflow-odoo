@@ -115,7 +115,7 @@ export class DepartmentController {
         return res.status(409).json(errorResponse('Department name already exists'));
       }
 
-      const department = await Department.create(validatedData);
+      const department = await Department.create(validatedData as any);
       res.status(201).json(successResponse('Department created successfully', department));
     } catch (error: any) {
       if (error.errors) {
@@ -174,7 +174,7 @@ export class DepartmentController {
         const activeUsersCount = await User.countDocuments({ 
           departmentId: department._id, 
           status: 'ACTIVE' 
-        });
+        } as any);
         
         if (activeUsersCount > 0) {
           return res.status(400).json(errorResponse(`Cannot deactivate department. There are ${activeUsersCount} active employees assigned to it. Please reassign them first.`));

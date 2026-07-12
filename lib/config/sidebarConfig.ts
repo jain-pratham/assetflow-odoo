@@ -60,16 +60,9 @@ export const sidebarConfig: SidebarConfigItem[] = [
   {
     id: 'allocation',
     name: 'Allocation & Transfer',
+    href: '/allocation',
     icon: ArrowRightLeft,
     roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER, ROLES.DEPARTMENT_HEAD],
-    children: [
-      { id: 'alloc-allocate', name: 'Allocate Asset', href: ROUTES.ALLOCATION.ALLOCATE, roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER] },
-      { id: 'alloc-transfer', name: 'Transfer Asset', href: ROUTES.ALLOCATION.TRANSFER, roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER] },
-      { id: 'alloc-return', name: 'Return Asset', href: ROUTES.ALLOCATION.RETURN, roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER] },
-      { id: 'alloc-history', name: 'Allocation History', href: ROUTES.ALLOCATION.HISTORY, roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER] },
-      { id: 'alloc-transfer-req', name: 'Transfer Requests', href: ROUTES.ALLOCATION.TRANSFER_REQUESTS, roles: [ROLES.DEPARTMENT_HEAD] },
-      { id: 'alloc-return-req', name: 'Return Requests', href: ROUTES.ALLOCATION.RETURN_REQUESTS, roles: [ROLES.DEPARTMENT_HEAD] },
-    ],
   },
   {
     id: 'booking',
