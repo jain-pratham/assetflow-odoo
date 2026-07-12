@@ -407,9 +407,19 @@ export class AuditController {
       const pendingCount = await AuditItem.countDocuments({
         auditId: req.params.id,
         verificationStatus: 'PENDING',
-      });
+      }).session(session);
       if (pendingCount > 0) {
         throw new Error(`${pendingCount} asset(s) still pending verification. Complete all verifications first.`);
+      }
+
+      // Cascade logic: Mark 'MISSING' assets as 'LOST'
+      const missingItems = await AuditItem.find({
+        auditId: req.params.id,
+        verificationStatus: 'MISSING',
+      }).session(session);
+
+      for (const item of missingItems) {
+        await Asset.findByIdAndUpdate(item.assetId, { status: 'LOST' }, { session });
       }
 
       audit.status = 'COMPLETED';
