@@ -169,16 +169,29 @@ export function Sidebar({ isOpen, onToggleSidebar, onLogout }: { isOpen: boolean
       {/* User Profile / Avatar (Top) */}
       <div className={cn("p-4 border-b border-white/10 flex items-center gap-3", !isOpen && "justify-center")}>
         <div className="relative">
-          <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center font-bold text-white shrink-0 shadow-sm">
-            {user?.firstName?.[0]?.toUpperCase() || 'U'}
-            {user?.lastName?.[0]?.toUpperCase() || ''}
-          </div>
+          {user ? (
+            <div className="w-10 h-10 rounded-full bg-accent flex items-center justify-center font-bold text-white shrink-0 shadow-sm">
+              {user.firstName?.[0]?.toUpperCase() || 'U'}
+              {user.lastName?.[0]?.toUpperCase() || ''}
+            </div>
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-white/10 animate-pulse shrink-0"></div>
+          )}
           <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-sidebar rounded-full"></span>
         </div>
         {isOpen && (
           <div className="flex flex-col min-w-0">
-            <span className="text-sm font-bold text-white truncate">{user?.firstName || 'User'} {user?.lastName || ''}</span>
-            <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider truncate">{userRole.replace('_', ' ')}</span>
+            {user ? (
+              <>
+                <span className="text-sm font-bold text-white truncate">{user.firstName} {user.lastName}</span>
+                <span className="text-[10px] uppercase font-bold text-white/50 tracking-wider truncate">{userRole.replace('_', ' ')}</span>
+              </>
+            ) : (
+              <div className="space-y-2 py-1">
+                <div className="h-3 bg-white/10 rounded animate-pulse w-20"></div>
+                <div className="h-2 bg-white/10 rounded animate-pulse w-12"></div>
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -213,13 +226,9 @@ export function Sidebar({ isOpen, onToggleSidebar, onLogout }: { isOpen: boolean
             <UserIcon className="w-[14px] h-[14px]" />
             {isOpen && <span className="text-[12px] font-medium">Profile</span>}
           </Link>
-          <Link href="/password" className="flex items-center gap-1.5 p-1.5 rounded-md text-white/70 hover:bg-white/10 hover:text-white transition-colors" title="Password">
+          <Link href="/profile" className="flex items-center gap-1.5 p-1.5 rounded-md text-white/70 hover:bg-white/10 hover:text-white transition-colors" title="Password">
             <Key className="w-[14px] h-[14px]" />
             {isOpen && <span className="text-[12px] font-medium">Password</span>}
-          </Link>
-          <Link href="/2fa" className="flex items-center gap-1.5 p-1.5 rounded-md text-white/70 hover:bg-white/10 hover:text-white transition-colors" title="2FA">
-            <Shield className="w-[14px] h-[14px]" />
-            {isOpen && <span className="text-[12px] font-medium">2FA</span>}
           </Link>
         </div>
         <button

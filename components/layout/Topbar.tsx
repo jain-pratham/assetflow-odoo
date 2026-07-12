@@ -11,7 +11,7 @@ import Link from 'next/link';
 import { NotificationBell } from './NotificationBell';
 import { cn } from '@/lib/utils';
 
-export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
+export function Topbar({ onToggleSidebar, onLogout }: { onToggleSidebar: () => void, onLogout: () => void }) {
   const { theme, setTheme } = useTheme();
   const user = useSelector((state: RootState) => state.auth.user);
   const { title } = useRouteMeta();
@@ -25,7 +25,7 @@ export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   }, []);
 
   const handleLogout = () => {
-    dispatch(logout());
+    onLogout();
   };
 
   return (
@@ -93,15 +93,26 @@ export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
             onClick={() => setProfileOpen(!profileOpen)}
             className="flex items-center gap-2 pl-1 pr-2 py-1 rounded-full border border-border hover:bg-muted transition-colors"
           >
-            <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm shadow-sm">
-              {user?.firstName?.[0]?.toUpperCase() || 'U'}
-              {user?.lastName?.[0]?.toUpperCase() || ''}
-            </div>
-            <div className="hidden sm:flex flex-col items-start min-w-0">
-              <span className="text-[10px] font-bold text-foreground uppercase tracking-wider">
-                {user?.role?.replace('_', ' ') || 'USER'}
-              </span>
-            </div>
+            {user ? (
+              <>
+                <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold text-sm shadow-sm">
+                  {user.firstName?.[0]?.toUpperCase() || 'U'}
+                  {user.lastName?.[0]?.toUpperCase() || ''}
+                </div>
+                <div className="hidden sm:flex flex-col items-start min-w-0">
+                  <span className="text-[10px] font-bold text-foreground uppercase tracking-wider">
+                    {user.role?.replace('_', ' ') || 'USER'}
+                  </span>
+                </div>
+              </>
+            ) : (
+              <>
+                <div className="w-8 h-8 rounded-full bg-muted animate-pulse"></div>
+                <div className="hidden sm:flex flex-col items-start min-w-0 space-y-1">
+                  <div className="h-2 w-12 bg-muted rounded animate-pulse"></div>
+                </div>
+              </>
+            )}
             <ChevronDown className="w-4 h-4 text-muted-foreground ml-1" />
           </button>
 
@@ -110,11 +121,8 @@ export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
               <Link href="/profile" className="flex items-center px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted" onClick={() => setProfileOpen(false)}>
                 <UserIcon className="w-4 h-4 mr-2" /> Profile
               </Link>
-              <Link href="/password" className="flex items-center px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted" onClick={() => setProfileOpen(false)}>
+              <Link href="/profile" className="flex items-center px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted" onClick={() => setProfileOpen(false)}>
                 <Key className="w-4 h-4 mr-2" /> Change Password
-              </Link>
-              <Link href="/2fa" className="flex items-center px-4 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted" onClick={() => setProfileOpen(false)}>
-                <Shield className="w-4 h-4 mr-2" /> 2FA Settings
               </Link>
               <div className="border-t border-border my-1"></div>
               <button onClick={handleLogout} className="w-full flex items-center px-4 py-2 text-sm text-rose-500 hover:bg-muted">

@@ -63,7 +63,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           isSidebarOpen ? "lg:ml-[260px]" : "lg:ml-[68px]"
         )}
       >
-        <Topbar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} />
+        <Topbar onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} onLogout={handleLogout} />
         
         <main className="flex-1 overflow-x-hidden overflow-y-auto relative z-0">
           {isInitializing ? (
