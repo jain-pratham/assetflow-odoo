@@ -5,7 +5,7 @@ import { successResponse } from '../utils/apiResponse';
 export class ProfileController {
   static getProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const profile = await ProfileService.getProfile(req.user!._id);
+      const profile = await ProfileService.getProfile(req.user!._id.toString());
       res.status(200).json(successResponse('Profile fetched', profile));
     } catch (error) {
       next(error);
@@ -14,7 +14,7 @@ export class ProfileController {
 
   static updateProfile = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const updatedProfile = await ProfileService.updateProfile(req.user!._id, req.body);
+      const updatedProfile = await ProfileService.updateProfile(req.user!._id.toString(), req.body);
       res.status(200).json(successResponse('Profile updated successfully', updatedProfile));
     } catch (error) {
       next(error);
@@ -24,7 +24,7 @@ export class ProfileController {
   static updatePassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { currentPassword, newPassword } = req.body;
-      await ProfileService.updatePassword(req.user!._id, currentPassword, newPassword);
+      await ProfileService.updatePassword(req.user!._id.toString(), currentPassword, newPassword);
       
       // Clear refresh token cookie since the user must login again
       res.clearCookie('refreshToken', {
@@ -49,7 +49,7 @@ export class ProfileController {
       // Generate relative URL
       const relativePath = `/uploads/avatars/${req.file.filename}`;
       
-      const updatedProfile = await ProfileService.updateAvatar(req.user!._id, relativePath);
+      const updatedProfile = await ProfileService.updateAvatar(req.user!._id.toString(), relativePath);
       res.status(200).json(successResponse('Avatar updated successfully', updatedProfile));
     } catch (error) {
       next(error);
@@ -58,7 +58,7 @@ export class ProfileController {
 
   static removeAvatar = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const updatedProfile = await ProfileService.removeAvatar(req.user!._id);
+      const updatedProfile = await ProfileService.removeAvatar(req.user!._id.toString());
       res.status(200).json(successResponse('Avatar removed successfully', updatedProfile));
     } catch (error) {
       next(error);
@@ -70,7 +70,7 @@ export class ProfileController {
       const page = parseInt(req.query.page as string) || 1;
       const limit = parseInt(req.query.limit as string) || 10;
       
-      const result = await ProfileService.getActivity(req.user!._id, page, limit);
+      const result = await ProfileService.getActivity(req.user!._id.toString(), page, limit);
       res.status(200).json(successResponse('Activity fetched', result.data, {
         total: result.total,
         page,

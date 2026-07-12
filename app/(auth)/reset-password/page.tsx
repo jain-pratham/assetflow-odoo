@@ -10,7 +10,12 @@ import { Loader2, Eye, EyeOff, Boxes } from 'lucide-react';
 import api from '../../../services/api';
 
 const resetSchema = z.object({
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: z.string()
+    .min(8, 'Password must be at least 8 characters')
+    .regex(/[A-Z]/, 'Must contain uppercase letter')
+    .regex(/[a-z]/, 'Must contain lowercase letter')
+    .regex(/[0-9]/, 'Must contain number')
+    .regex(/[^A-Za-z0-9]/, 'Must contain special character'),
   confirmPassword: z.string().min(8, 'Confirm password is required'),
 }).refine((data) => data.password === data.confirmPassword, {
   message: "Passwords don't match",
@@ -19,33 +24,74 @@ const resetSchema = z.object({
 
 type ResetForm = z.infer<typeof resetSchema>;
 
+import { useEffect } from 'react';
+
 function ResetPasswordForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(true);
+  const [isValidToken, setIsValidToken] = useState(false);
+
+  useEffect(() => {
+    const verifyToken = async () => {
+      if (!token) {
+        setIsVerifying(false);
+        return;
+      }
+      try {
+        await api.get(`/auth/verify-reset-token?resetToken=${token}`);
+        setIsValidToken(true);
+      } catch (error) {
+        setIsValidToken(false);
+      } finally {
+        setIsVerifying(false);
+      }
+    };
+    verifyToken();
+  }, [token]);
 
   const {
     register,
     handleSubmit,
+    watch,
     formState: { errors, isSubmitting },
   } = useForm<ResetForm>({
     resolver: zodResolver(resetSchema),
   });
 
-  if (!token) {
+  const passwordValue = watch('password') || '';
+  const passwordRules = [
+    { label: 'Minimum 8 characters', met: passwordValue.length >= 8 },
+    { label: 'One uppercase letter', met: /[A-Z]/.test(passwordValue) },
+    { label: 'One lowercase letter', met: /[a-z]/.test(passwordValue) },
+    { label: 'One number', met: /[0-9]/.test(passwordValue) },
+    { label: 'One special character', met: /[^A-Za-z0-9]/.test(passwordValue) },
+  ];
+
+  if (isVerifying) {
+    return (
+      <div className="flex flex-col items-center justify-center py-12">
+        <Loader2 className="animate-spin w-8 h-8 text-[#1976F3] mb-4" />
+        <p className="text-sm text-gray-500">Verifying secure link...</p>
+      </div>
+    );
+  }
+
+  if (!token || !isValidToken) {
     return (
       <div className="text-center">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-white tracking-tight">Invalid Link</h1>
         <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-          The password reset link is invalid or has expired.
+          The password reset link is invalid, has expired, or was already used.
         </p>
         <button
-          onClick={() => router.push('/forgot-password')}
+          onClick={() => router.push('/login')}
           className="mt-6 w-full h-12 flex items-center justify-center rounded-lg text-sm font-semibold text-white bg-[#1976F3] dark:bg-[#3B82F6] hover:opacity-90 transition-opacity"
         >
-          Request new link
+          Return to Login
         </button>
       </div>
     );
@@ -95,6 +141,16 @@ function ResetPasswordForm() {
             </button>
           </div>
           {errors.password && <p className="text-sm text-red-500 mt-1.5">{errors.password.message}</p>}
+          <div className="mt-3 space-y-1.5">
+            {passwordRules.map((rule, idx) => (
+              <div key={idx} className="flex items-center text-xs">
+                <div className={`w-3 h-3 rounded-full mr-2 flex-shrink-0 flex items-center justify-center ${rule.met ? 'bg-green-500 text-white' : 'bg-gray-200 dark:bg-gray-700'}`}>
+                  {rule.met && <svg className="w-2 h-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
+                </div>
+                <span className={rule.met ? 'text-gray-900 dark:text-gray-300' : 'text-gray-500'}>{rule.label}</span>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div>

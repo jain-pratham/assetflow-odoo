@@ -12,6 +12,7 @@ router.post('/login', loginRateLimiter, validate(loginSchema), AuthController.lo
 router.post('/logout', AuthController.logout);
 router.post('/refresh', AuthController.refresh);
 router.post('/forgot-password', forgotPasswordRateLimiter, validate(forgotPasswordSchema), AuthController.forgotPassword);
+router.get('/verify-reset-token', AuthController.verifyResetToken);
 router.post('/reset-password/:resetToken', validate(resetPasswordSchema), AuthController.resetPassword);
 router.get('/me', protect, AuthController.getMe);
 

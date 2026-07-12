@@ -6,7 +6,7 @@ import { useRouteMeta } from '@/hooks/useRouteMeta';
 
 interface PageHeaderProps {
   title?: string;
-  description?: string;
+  description?: string | ReactNode;
   actions?: ReactNode;
   breadcrumbItems?: { label: string; href?: string }[];
 }
@@ -17,12 +17,12 @@ export function PageHeader({ title, description, actions, breadcrumbItems }: Pag
 
   return (
     <div className="flex flex-col space-y-4 mb-6">
-      <Breadcrumb items={breadcrumbItems} />
+      <Breadcrumb />
       <div className="flex flex-col md:flex-row md:items-start justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">{displayTitle}</h1>
           {description && (
-            <p className="text-muted-foreground mt-1 max-w-3xl">{description}</p>
+            <div className="text-muted-foreground mt-1 max-w-3xl">{description}</div>
           )}
         </div>
         {actions && (

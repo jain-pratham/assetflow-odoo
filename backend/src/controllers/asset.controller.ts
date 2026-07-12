@@ -108,7 +108,7 @@ export class AssetController {
       const asset = await Asset.create(validatedData as any);
 
       // Notify Admins
-      const admins = await User.find({ role: UserRole.ADMIN, status: 'ACTIVE' });
+      const admins = await User.find({ role: UserRole.ADMIN, status: 'ACTIVE' } as any);
       for (const admin of admins) {
         await NotificationService.createNotification({
           title: 'New Asset Registered',

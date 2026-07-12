@@ -45,7 +45,7 @@ export class NotificationService {
       });
 
       // 2. Emit Socket Event (if browser/in-app enabled)
-      if (prefs.enableBrowser || prefs.inApp !== false) {
+      if (prefs.enableBrowser) {
         SocketService.emitToUser(params.recipient, 'new_notification', notification);
       }
 

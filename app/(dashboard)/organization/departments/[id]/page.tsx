@@ -57,14 +57,13 @@ export default function DepartmentViewPage({ params }: { params: Promise<{ id: s
           { label: 'Departments', href: '/organization/departments' },
           { label: dept.name }
         ]}
-      />
-        <div className="flex items-center gap-3">
+        actions={
           <Button onClick={() => router.push(`/organization/departments/${dept._id}/edit`)}>
             <Edit className="w-4 h-4 mr-2" />
             Edit Department
           </Button>
-        </div>
-      </div>
+        }
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 space-y-6">

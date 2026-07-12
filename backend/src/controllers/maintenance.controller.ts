@@ -310,7 +310,7 @@ export class MaintenanceController {
         .lean();
 
       // Notify Admins and Asset Managers
-      const approvers = await User.find({ role: { $in: [UserRole.ADMIN, UserRole.ASSET_MANAGER] }, status: 'ACTIVE' });
+      const approvers = await User.find({ role: { $in: [UserRole.ADMIN, UserRole.ASSET_MANAGER] }, status: 'ACTIVE' } as any);
       for (const approver of approvers) {
         await NotificationService.createNotification({
           title: 'New Maintenance Request',

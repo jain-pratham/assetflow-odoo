@@ -13,6 +13,7 @@ import maintenanceRoutes from './routes/maintenance.routes';
 import auditRoutes from './routes/audit.routes';
 import reportsRoutes from './routes/reports.routes';
 import notificationsRoutes from './routes/notifications.routes';
+import dashboardRoutes from './routes/dashboard.routes';
 import activityRoutes from './routes/activity.routes';
 import profileRoutes from './routes/profile.routes';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
@@ -45,6 +46,7 @@ app.use('/api/audit', auditRoutes);
 app.use('/api/maintenance', maintenanceRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/notifications', notificationsRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/activity', activityRoutes);
 app.use('/api/profile', profileRoutes);
 

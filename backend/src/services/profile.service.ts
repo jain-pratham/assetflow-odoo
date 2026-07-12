@@ -12,10 +12,10 @@ export class ProfileService {
     if (!user) throw new Error('User not found');
     
     const obj = user.toObject();
-    delete obj.passwordHash;
-    delete obj.refreshTokenHash;
-    delete obj.resetPasswordToken;
-    delete obj.resetPasswordExpires;
+    delete (obj as any).passwordHash;
+    delete (obj as any).refreshTokenHash;
+    delete (obj as any).resetPasswordToken;
+    delete (obj as any).resetPasswordExpires;
     
     return obj;
   }
@@ -37,21 +37,21 @@ export class ProfileService {
 
     await user.save();
     
-    await NotificationService.logActivity(
-      userId,
-      'UPDATE',
-      'USER',
-      userId,
-      'Updated profile information'
-    );
+    await ActivityLog.create({
+      actor: userId,
+      action: 'UPDATE',
+      entityType: 'USER',
+      entityId: userId,
+      metadata: 'Updated profile information'
+    });
     
-    await NotificationService.createNotification(
-      userId,
-      'Profile Updated',
-      'Your profile information has been updated successfully.',
-      'SYSTEM',
-      'LOW'
-    );
+    await NotificationService.createNotification({
+      recipient: userId,
+      title: 'Profile Updated',
+      message: 'Your profile information has been updated successfully.',
+      type: 'SYSTEM',
+      priority: 'LOW'
+    });
 
     return this.getProfile(userId);
   }
@@ -74,21 +74,21 @@ export class ProfileService {
     user.refreshTokenHash = undefined;
     await user.save();
 
-    await NotificationService.logActivity(
-      userId,
-      'UPDATE',
-      'USER',
-      userId,
-      'Changed account password'
-    );
+    await ActivityLog.create({
+      actor: userId,
+      action: 'UPDATE',
+      entityType: 'USER',
+      entityId: userId,
+      metadata: 'Changed account password'
+    });
     
-    await NotificationService.createNotification(
-      userId,
-      'Password Changed',
-      'Your password was changed successfully. If this was not you, please contact support immediately.',
-      'SECURITY',
-      'HIGH'
-    );
+    await NotificationService.createNotification({
+      recipient: userId,
+      title: 'Password Changed',
+      message: 'Your password was changed successfully. If this was not you, please contact support immediately.',
+      type: 'SECURITY',
+      priority: 'HIGH'
+    });
 
     // Send Email
     const html = `
@@ -120,21 +120,21 @@ export class ProfileService {
     user.avatar = relativePath;
     await user.save();
 
-    await NotificationService.logActivity(
-      userId,
-      'UPDATE',
-      'USER',
-      userId,
-      'Updated profile avatar'
-    );
+    await ActivityLog.create({
+      actor: userId,
+      action: 'UPDATE',
+      entityType: 'USER',
+      entityId: userId,
+      metadata: 'Updated profile avatar'
+    });
     
-    await NotificationService.createNotification(
-      userId,
-      'Avatar Updated',
-      'Your profile picture was successfully updated.',
-      'SYSTEM',
-      'LOW'
-    );
+    await NotificationService.createNotification({
+      recipient: userId,
+      title: 'Avatar Updated',
+      message: 'Your profile picture was successfully updated.',
+      type: 'SYSTEM',
+      priority: 'LOW'
+    });
 
     return this.getProfile(userId);
   }
@@ -157,13 +157,13 @@ export class ProfileService {
     user.avatar = '';
     await user.save();
 
-    await NotificationService.logActivity(
-      userId,
-      'UPDATE',
-      'USER',
-      userId,
-      'Removed profile avatar'
-    );
+    await ActivityLog.create({
+      actor: userId,
+      action: 'UPDATE',
+      entityType: 'USER',
+      entityId: userId,
+      metadata: 'Removed profile avatar'
+    });
 
     return this.getProfile(userId);
   }

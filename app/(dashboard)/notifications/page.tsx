@@ -70,7 +70,6 @@ export default function NotificationsPage() {
       cell: (row: any) => (
         <StatusBadge 
           status={row.isRead ? 'READ' : 'UNREAD'} 
-          variant={row.isRead ? 'default' : 'warning'} 
         />
       ),
     },
@@ -149,7 +148,6 @@ export default function NotificationsPage() {
         <DataTable 
           columns={columns}
           data={notifications}
-          keyExtractor={(item) => item._id}
           isLoading={isLoading}
           emptyMessage="No notifications found."
         />

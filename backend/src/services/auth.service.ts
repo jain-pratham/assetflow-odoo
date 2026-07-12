@@ -1,4 +1,5 @@
 import { User, IUser, UserRole } from '../models/User';
+import { ActivityLog } from '../models/ActivityLog';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import crypto from 'crypto';
@@ -96,19 +97,36 @@ export class AuthService {
     }
   }
 
-  static async forgotPassword(email: string): Promise<string> {
+  static async forgotPassword(email: string): Promise<string | null> {
     const user = await User.findOne({ email });
     if (!user) {
-      // Return dummy token to avoid email enumeration
-      return crypto.randomBytes(20).toString('hex'); 
+      // Return null to avoid sending email, but controller will return success
+      return null;
     }
 
     const resetToken = crypto.randomBytes(20).toString('hex');
     user.resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
-    user.resetPasswordExpires = new Date(Date.now() + 30 * 60 * 1000); // 30 mins
+    user.resetPasswordExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 mins
     await user.save();
 
+    await ActivityLog.create({
+      actor: user._id,
+      action: 'UPDATE',
+      entityType: 'USER',
+      entityId: user._id as unknown as string,
+      metadata: 'Requested password reset'
+    });
+
     return resetToken;
+  }
+
+  static async verifyResetToken(resetToken: string): Promise<boolean> {
+    const resetPasswordToken = crypto.createHash('sha256').update(resetToken).digest('hex');
+    const user = await User.findOne({
+      resetPasswordToken,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
+    return !!user;
   }
 
   static async resetPassword(resetToken: string, newPassword: string): Promise<void> {
@@ -126,7 +144,16 @@ export class AuthService {
     user.passwordHash = await bcrypt.hash(newPassword, 10);
     user.resetPasswordToken = undefined;
     user.resetPasswordExpires = undefined;
+    user.refreshTokenHash = undefined; // Force logout on all devices
     await user.save();
+
+    await ActivityLog.create({
+      actor: user._id,
+      action: 'UPDATE',
+      entityType: 'USER',
+      entityId: user._id as unknown as string,
+      metadata: 'Completed password reset successfully'
+    });
   }
 
   private static generateTokens(user: IUser) {

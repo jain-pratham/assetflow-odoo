@@ -68,14 +68,14 @@ export default function ProfilePage() {
       />
 
         {/* Section 1: Personal Information */}
-        <PersonalInformationSection profile={profile} accessToken={accessToken} onSuccess={setProfile} />
+        <PersonalInformationSection profile={profile} accessToken={accessToken || ''} onSuccess={setProfile} />
 
         {/* Section 2: Account Information */}
         <AccountInformationSection profile={profile} />
 
         {/* Section 3: Change Password */}
         <SecuritySection 
-          accessToken={accessToken} 
+          accessToken={accessToken || ''} 
           onLogout={() => { 
             alert('Password changed successfully. Please login again.'); 
             dispatch(logout()); 
@@ -84,7 +84,7 @@ export default function ProfilePage() {
         />
 
         {/* Section 4: Recent Activity */}
-        <ActivitySection accessToken={accessToken} />
+        <ActivitySection accessToken={accessToken || ''} />
       </div>
     </PageContainer>
   );
@@ -189,7 +189,10 @@ function PersonalInformationSection({ profile, accessToken, onSuccess }: { profi
   };
 
   return (
-    <ContentCard title="PERSONAL INFORMATION">
+    <ContentCard className="p-6">
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold tracking-tight text-foreground uppercase">Personal Information</h3>
+      </div>
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         {/* Left: Avatar Area */}
         <div className="flex flex-col items-center gap-4 min-w-[200px]">
@@ -289,7 +292,10 @@ function PersonalInformationSection({ profile, accessToken, onSuccess }: { profi
 // ---------------------------------------------------------
 function AccountInformationSection({ profile }: { profile: any }) {
   return (
-    <ContentCard title="ACCOUNT INFORMATION">
+    <ContentCard className="p-6">
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold tracking-tight text-foreground uppercase">Account Information</h3>
+      </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-8 gap-x-6">
         <div>
           <label className="text-sm text-muted-foreground font-medium uppercase tracking-wider text-[11px]">Employee ID</label>
@@ -396,7 +402,11 @@ function SecuritySection({ accessToken, onLogout }: { accessToken: string, onLog
   };
 
   return (
-    <ContentCard title="SECURITY" description="Update your account password.">
+    <ContentCard className="p-6">
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold tracking-tight text-foreground uppercase">Security</h3>
+        <p className="text-sm text-muted-foreground mt-1">Update your account password.</p>
+      </div>
       <div className="flex justify-center w-full">
         <form onSubmit={handleSubmit} className="space-y-6 w-full max-w-lg mt-4">
           {error && (
@@ -539,7 +549,10 @@ function ActivitySection({ accessToken }: { accessToken: string }) {
   ];
 
   return (
-    <ContentCard title="RECENT ACTIVITY">
+    <ContentCard className="p-6">
+      <div className="mb-6">
+        <h3 className="text-lg font-semibold tracking-tight text-foreground uppercase">Recent Activity</h3>
+      </div>
       <div className="mt-2">
         <DataTable 
           data={activities}

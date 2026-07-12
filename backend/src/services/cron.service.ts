@@ -65,7 +65,7 @@ export class CronService {
         const overdueMaintenance = await Maintenance.find({
           status: { $in: ['PENDING', 'IN_PROGRESS'] },
           expectedCompletionDate: { $lt: today }
-        }).populate('assignedTechnicianId');
+        } as any).populate('assignedTechnicianId');
         for (const maint of overdueMaintenance) {
           if (maint.assignedTechnicianId) {
             await NotificationService.createNotification({
@@ -106,7 +106,7 @@ export class CronService {
     // 3. Every Month (1st Day): Monthly Report Ready
     cron.schedule('0 0 1 * *', async () => {
       try {
-        const admins = await User.find({ role: UserRole.ADMIN, status: 'ACTIVE' });
+        const admins = await User.find({ role: UserRole.ADMIN, status: 'ACTIVE' } as any);
         for (const admin of admins) {
           await NotificationService.createNotification({
             title: 'Monthly Analytics Ready',

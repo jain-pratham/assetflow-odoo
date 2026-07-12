@@ -5,17 +5,23 @@ export class MailService {
 
   private static init() {
     if (!this.transporter) {
-      if (!process.env.SMTP_HOST || !process.env.SMTP_USER || !process.env.SMTP_PASS) {
+      const host = process.env.SMTP_HOST || process.env.EMAIL_HOST;
+      const port = process.env.SMTP_PORT || process.env.EMAIL_PORT;
+      const user = process.env.SMTP_USER || process.env.EMAIL_USER;
+      const pass = process.env.SMTP_PASS || process.env.EMAIL_PASS;
+      const secureStr = process.env.SMTP_SECURE || process.env.EMAIL_SECURE;
+      
+      if (!host || !user || !pass) {
         console.warn('MailService: SMTP credentials are not configured in .env. Emails will not be sent.');
         return;
       }
       this.transporter = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: Number(process.env.SMTP_PORT) || 587,
-        secure: process.env.SMTP_SECURE === 'true',
+        host: host,
+        port: Number(port) || 587,
+        secure: secureStr === 'true' || Number(port) === 465,
         auth: {
-          user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASS,
+          user: user,
+          pass: pass,
         },
       });
     }
@@ -25,9 +31,11 @@ export class MailService {
     this.init();
     if (!this.transporter) return false;
 
+    const fromAddress = process.env.SMTP_FROM || process.env.EMAIL_FROM || '"AssetFlow ERP" <no-reply@assetflow.com>';
+
     try {
       await this.transporter.sendMail({
-        from: process.env.SMTP_FROM || '"AssetFlow System" <no-reply@assetflow.com>',
+        from: fromAddress,
         to,
         subject,
         html,
