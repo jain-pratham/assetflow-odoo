@@ -36,6 +36,17 @@ export const PERMISSIONS: Record<UserRole, RolePermissions> = {
     canApproveMaintenance: true,
     canManageAudit: true,
   },
+  [ROLES.TECHNICIAN]: {
+    canCreateAssets: false,
+    canEditAssets: false,
+    canDeleteAssets: false,
+    canManageDepartments: false,
+    canManageUsers: false,
+    canAllocateAssets: false,
+    canApproveAllocations: false,
+    canApproveMaintenance: false,
+    canManageAudit: false,
+  },
   [ROLES.DEPARTMENT_HEAD]: {
     canCreateAssets: false,
     canEditAssets: false,

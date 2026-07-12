@@ -4,11 +4,11 @@ exports.updateCategorySchema = exports.createCategorySchema = void 0;
 const zod_1 = require("zod");
 exports.createCategorySchema = zod_1.z.object({
     name: zod_1.z
-        .string({ required_error: 'Category name is required' })
+        .string({ message: 'Category name is required' })
         .min(1, 'Category name is required')
         .max(100, 'Category name cannot exceed 100 characters'),
     code: zod_1.z
-        .string({ required_error: 'Category code is required' })
+        .string({ message: 'Category code is required' })
         .min(1, 'Category code is required')
         .max(20, 'Category code cannot exceed 20 characters')
         .transform((val) => val.toUpperCase()),

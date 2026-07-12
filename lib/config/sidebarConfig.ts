@@ -67,28 +67,16 @@ export const sidebarConfig: SidebarConfigItem[] = [
   {
     id: 'booking',
     name: 'Resource Booking',
+    href: '/booking',
     icon: CalendarCheck,
     roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER, ROLES.DEPARTMENT_HEAD, ROLES.EMPLOYEE],
-    children: [
-      { id: 'booking-book', name: 'Book Resource', href: ROUTES.BOOKING.RESOURCE, roles: [ROLES.ADMIN, ROLES.DEPARTMENT_HEAD, ROLES.EMPLOYEE] },
-      { id: 'booking-calendar', name: 'Booking Calendar', href: ROUTES.BOOKING.CALENDAR, roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER, ROLES.DEPARTMENT_HEAD] },
-      { id: 'booking-requests', name: 'Booking Requests', href: ROUTES.BOOKING.REQUESTS, roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER] },
-      { id: 'booking-my', name: 'My Bookings', href: ROUTES.BOOKING.MY, roles: [ROLES.EMPLOYEE] },
-    ],
   },
   {
     id: 'maintenance',
     name: 'Maintenance',
+    href: ROUTES.MAINTENANCE.ROOT,
     icon: Wrench,
-    roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER, ROLES.DEPARTMENT_HEAD, ROLES.EMPLOYEE],
-    children: [
-      { id: 'maint-requests', name: 'Maintenance Requests', href: ROUTES.MAINTENANCE.REQUESTS, roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER] },
-      { id: 'maint-assign', name: 'Assign Technician', href: ROUTES.MAINTENANCE.ASSIGN_TECHNICIAN, roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER] },
-      { id: 'maint-history', name: 'Maintenance History', href: ROUTES.MAINTENANCE.HISTORY, roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER] },
-      { id: 'maint-raise', name: 'Raise Request', href: ROUTES.MAINTENANCE.RAISE, roles: [ROLES.DEPARTMENT_HEAD, ROLES.EMPLOYEE] },
-      { id: 'maint-dept', name: 'Department Requests', href: ROUTES.MAINTENANCE.DEPARTMENT, roles: [ROLES.DEPARTMENT_HEAD] },
-      { id: 'maint-my', name: 'My Requests', href: ROUTES.MAINTENANCE.MY, roles: [ROLES.EMPLOYEE] },
-    ],
+    roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER, ROLES.TECHNICIAN, ROLES.DEPARTMENT_HEAD, ROLES.EMPLOYEE],
   },
   {
     id: 'audit',

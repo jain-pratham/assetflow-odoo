@@ -3,6 +3,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 export enum UserRole {
   ADMIN = 'ADMIN',
   ASSET_MANAGER = 'ASSET_MANAGER',
+  TECHNICIAN = 'TECHNICIAN',
   DEPARTMENT_HEAD = 'DEPARTMENT_HEAD',
   EMPLOYEE = 'EMPLOYEE',
 }

@@ -111,10 +111,10 @@ class AuthService {
         await user.save();
     }
     static generateTokens(user) {
-        const accessToken = jsonwebtoken_1.default.sign({ id: user.id, email: user.email, role: user.role }, process.env.JWT_ACCESS_SECRET || 'secret', {
+        const accessToken = jsonwebtoken_1.default.sign({ id: user._id, email: user.email, role: user.role }, process.env.JWT_ACCESS_SECRET || 'secret', {
             expiresIn: '15m',
         });
-        const refreshToken = jsonwebtoken_1.default.sign({ id: user.id }, process.env.JWT_REFRESH_SECRET || 'refresh_secret', {
+        const refreshToken = jsonwebtoken_1.default.sign({ id: user._id }, process.env.JWT_REFRESH_SECRET || 'refresh_secret', {
             expiresIn: '7d',
         });
         return { accessToken, refreshToken };

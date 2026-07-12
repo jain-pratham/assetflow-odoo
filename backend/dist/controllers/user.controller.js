@@ -81,7 +81,7 @@ class UserController {
             }
             const validationResult = updateUserSchema.safeParse(req.body);
             if (!validationResult.success) {
-                return res.status(400).json((0, apiResponse_1.errorResponse)('Validation failed', validationResult.error.errors));
+                return res.status(400).json((0, apiResponse_1.errorResponse)('Validation failed', validationResult.error.errors || []));
             }
             const data = validationResult.data;
             const user = await User_1.User.findById(id);
@@ -122,7 +122,7 @@ class UserController {
             }
             const validationResult = updateStatusSchema.safeParse(req.body);
             if (!validationResult.success) {
-                return res.status(400).json((0, apiResponse_1.errorResponse)('Validation failed', validationResult.error.errors));
+                return res.status(400).json((0, apiResponse_1.errorResponse)('Validation failed', validationResult.error.errors || []));
             }
             const user = await User_1.User.findById(id);
             if (!user) {

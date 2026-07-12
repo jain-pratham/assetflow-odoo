@@ -1,0 +1,17 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const maintenance_controller_1 = require("../controllers/maintenance.controller");
+const auth_middleware_1 = require("../middleware/auth.middleware");
+const User_1 = require("../models/User");
+const router = (0, express_1.Router)();
+router.use(auth_middleware_1.protect);
+router.get('/stats', maintenance_controller_1.MaintenanceController.getStats);
+router.get('/history', maintenance_controller_1.MaintenanceController.getHistory);
+router.get('/calendar', maintenance_controller_1.MaintenanceController.getCalendar);
+router.get('/:id', maintenance_controller_1.MaintenanceController.getById);
+router.get('/', maintenance_controller_1.MaintenanceController.getMaintenance);
+router.post('/', maintenance_controller_1.MaintenanceController.createMaintenance);
+router.put('/:id/assign', (0, auth_middleware_1.authorize)(User_1.UserRole.ADMIN, User_1.UserRole.ASSET_MANAGER), maintenance_controller_1.MaintenanceController.assignTechnician);
+router.put('/:id/status', (0, auth_middleware_1.authorize)(User_1.UserRole.ADMIN, User_1.UserRole.ASSET_MANAGER, User_1.UserRole.TECHNICIAN), maintenance_controller_1.MaintenanceController.updateStatus);
+exports.default = router;

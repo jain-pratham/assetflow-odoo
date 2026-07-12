@@ -27,6 +27,7 @@ export const ROUTES = {
     MY: '/booking/my',
   },
   MAINTENANCE: {
+    ROOT: '/maintenance',
     REQUESTS: '/maintenance/requests',
     ASSIGN_TECHNICIAN: '/maintenance/assign-technician',
     HISTORY: '/maintenance/history',

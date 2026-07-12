@@ -26,7 +26,7 @@
 - [x] Assets
 - [x] Allocations
 - [x] Transfers
-- [ ] Bookings
+- [x] Bookings
 - [ ] Maintenance
 - [ ] Audits
 - [ ] Notifications
@@ -37,7 +37,7 @@
 - [x] 2. Organization Setup (Employee Directory completed, Departments & Categories pending)
 - [ ] 3. Asset Registration & Directory
 - [ ] 4. Asset Allocation & Transfer
-- [ ] 5. Resource Booking (Calendar/List)
+- [x] 5. Resource Booking (Calendar/List)
 - [ ] 6. Maintenance Workflow
 - [ ] 7. Audit Cycles
 - [ ] 8. Dashboard
@@ -47,7 +47,7 @@
 ## Business Rules
 - [x] Signup creates an Employee account ONLY; roles assigned by Admin.
 - [ ] Block double-allocation (show "currently held by X" + offer Transfer Request).
-- [ ] Resource booking overlap validation.
+- [x] Resource booking overlap validation.
 - [ ] Maintenance must be approved before status is "Under Maintenance"; resolution flips back to "Available".
 - [ ] Audit Cycle discrepancies auto-generate a report; closing updates statuses.
 - [ ] RBAC enforced on every API route.

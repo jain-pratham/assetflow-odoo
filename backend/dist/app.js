@@ -13,6 +13,8 @@ const department_routes_1 = __importDefault(require("./routes/department.routes"
 const category_routes_1 = __importDefault(require("./routes/category.routes"));
 const asset_routes_1 = __importDefault(require("./routes/asset.routes"));
 const allocation_routes_1 = __importDefault(require("./routes/allocation.routes"));
+const booking_routes_1 = __importDefault(require("./routes/booking.routes"));
+const maintenance_routes_1 = __importDefault(require("./routes/maintenance.routes"));
 const error_middleware_1 = require("./middleware/error.middleware");
 const app = (0, express_1.default)();
 app.use((0, helmet_1.default)());
@@ -29,6 +31,8 @@ app.use('/api/departments', department_routes_1.default);
 app.use('/api/categories', category_routes_1.default);
 app.use('/api/assets', asset_routes_1.default);
 app.use('/api/allocations', allocation_routes_1.default);
+app.use('/api/bookings', booking_routes_1.default);
+app.use('/api/maintenance', maintenance_routes_1.default);
 app.use(error_middleware_1.notFoundHandler);
 app.use(error_middleware_1.errorHandler);
 exports.default = app;

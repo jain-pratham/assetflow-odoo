@@ -104,7 +104,7 @@ export class AssetController {
       const existingTag = await Asset.findOne({ tag: validatedData.tag });
       if (existingTag) return res.status(409).json(errorResponse('Asset tag already exists'));
 
-      const asset = await Asset.create(validatedData);
+      const asset = await Asset.create(validatedData as any);
       return res.status(201).json(successResponse('Asset created successfully', asset));
     } catch (error: any) {
       if (error.name === 'ZodError') return res.status(400).json(errorResponse(error.errors[0].message));

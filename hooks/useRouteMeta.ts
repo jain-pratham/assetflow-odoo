@@ -2,6 +2,11 @@
 
 import { usePathname } from 'next/navigation';
 
+type BreadcrumbItem = {
+  label: string;
+  href?: string;
+};
+
 export function useRouteMeta() {
   const pathname = usePathname();
 
@@ -13,7 +18,7 @@ export function useRouteMeta() {
   }
 
   const segments = pathname.split('/').filter(Boolean);
-  const breadcrumbs = [{ label: 'Home', href: '/dashboard' }];
+  const breadcrumbs: BreadcrumbItem[] = [{ label: 'Home', href: '/dashboard' }];
   let currentPath = '';
 
   segments.forEach((segment, i) => {

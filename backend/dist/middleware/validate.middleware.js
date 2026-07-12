@@ -15,11 +15,12 @@ const validate = (schema) => {
         }
         catch (error) {
             if (error instanceof zod_1.ZodError) {
-                const errors = error.errors.map((e) => ({
+                const errors = error.errors || error.issues || [];
+                const formatted = errors.map((e) => ({
                     path: e.path.join('.'),
                     message: e.message,
                 }));
-                return res.status(400).json((0, apiResponse_1.errorResponse)('Validation Error', errors));
+                return res.status(400).json((0, apiResponse_1.errorResponse)('Validation Error', formatted));
             }
             return res.status(400).json((0, apiResponse_1.errorResponse)('Validation Error', error));
         }
