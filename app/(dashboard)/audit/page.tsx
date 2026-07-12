@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { ContentCard } from '@/components/layout/ContentCard';
 import { DataTable, ColumnDef } from '@/components/ui/DataTable';
 import { Pagination } from '@/components/ui/Pagination';
@@ -386,49 +387,45 @@ export default function AuditPage() {
 
   return (
     <PageContainer>
-      {/* Header */}
-      <div className="mb-6 flex flex-col md:flex-row md:items-start justify-between gap-4">
-        <div>
-          <p className="text-xs text-muted-foreground mb-1">Home &rsaquo; Audit</p>
-          <h1 className="text-2xl font-bold">Audit Management</h1>
-          <p className="text-muted-foreground mt-1 text-sm max-w-xl">
-            Manage audit cycles, asset verification and discrepancy reports from one centralized dashboard.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
-          {canManage && (
-            <Button onClick={() => setIsStartOpen(true)} className="flex items-center gap-2">
-              <PlayCircle className="w-4 h-4" /> Start Audit
-            </Button>
-          )}
-          <Button
-            variant={viewMode === 'AUDIT' ? 'default' : 'outline'}
-            onClick={() => { setViewMode('AUDIT'); setActiveAudit(null); setPage(1); }}
-            className="flex items-center gap-2"
-          >
-            <ClipboardCheck className="w-4 h-4" /> Current Audits
-          </Button>
-          <Button
-            variant={viewMode === 'DISCREPANCIES' ? 'default' : 'outline'}
-            onClick={() => { setViewMode('DISCREPANCIES'); setActiveAudit(null); setPage(1); }}
-            className="flex items-center gap-2"
-          >
-            <AlertTriangle className="w-4 h-4" /> Discrepancies
-            {stats.missingAssets + stats.damagedAssets > 0 && (
-              <span className="ml-1 bg-rose-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center">
-                {stats.missingAssets + stats.damagedAssets}
-              </span>
+      <PageHeader
+        title="Audit Management"
+        description="Manage audit cycles, asset verification and discrepancy reports from one centralized dashboard."
+        actions={
+          <>
+            {canManage && (
+              <Button onClick={() => setIsStartOpen(true)} className="flex items-center gap-2">
+                <PlayCircle className="w-4 h-4" /> Start Audit
+              </Button>
             )}
-          </Button>
-          <Button
-            variant={viewMode === 'HISTORY' ? 'default' : 'outline'}
-            onClick={() => { setViewMode('HISTORY'); setActiveAudit(null); setPage(1); }}
-            className="flex items-center gap-2"
-          >
-            <History className="w-4 h-4" /> History
-          </Button>
-        </div>
-      </div>
+            <Button
+              variant={viewMode === 'AUDIT' ? 'default' : 'outline'}
+              onClick={() => { setViewMode('AUDIT'); setActiveAudit(null); setPage(1); }}
+              className="flex items-center gap-2"
+            >
+              <ClipboardCheck className="w-4 h-4" /> Current Audits
+            </Button>
+            <Button
+              variant={viewMode === 'DISCREPANCIES' ? 'default' : 'outline'}
+              onClick={() => { setViewMode('DISCREPANCIES'); setActiveAudit(null); setPage(1); }}
+              className="flex items-center gap-2"
+            >
+              <AlertTriangle className="w-4 h-4" /> Discrepancies
+              {stats.missingAssets + stats.damagedAssets > 0 && (
+                <span className="ml-1 bg-rose-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center">
+                  {stats.missingAssets + stats.damagedAssets}
+                </span>
+              )}
+            </Button>
+            <Button
+              variant={viewMode === 'HISTORY' ? 'default' : 'outline'}
+              onClick={() => { setViewMode('HISTORY'); setActiveAudit(null); setPage(1); }}
+              className="flex items-center gap-2"
+            >
+              <History className="w-4 h-4" /> History
+            </Button>
+          </>
+        }
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">

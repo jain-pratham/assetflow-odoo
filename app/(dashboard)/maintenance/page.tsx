@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { ContentCard } from '@/components/layout/ContentCard';
 import { DataTable, ColumnDef } from '@/components/ui/DataTable';
 import { Pagination } from '@/components/ui/Pagination';
@@ -720,35 +721,34 @@ export default function MaintenancePage() {
 
   return (
     <PageContainer>
-      <div className="mb-6 flex flex-col md:flex-row md:items-start justify-between gap-4">
-        <div>
-          <p className="text-muted-foreground mt-1 text-sm max-w-3xl">
-            Manage maintenance requests, technician assignments, repairs, and maintenance history from one centralized dashboard.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
-          {canCreate && (
-            <Button onClick={() => setNewOpen(true)} className="flex items-center gap-2">
-              <Plus className="w-4 h-4" /> New Maintenance Request
+      <PageHeader
+        title="Maintenance"
+        description="Manage maintenance requests, technician assignments, repairs, and maintenance history from one centralized dashboard."
+        actions={
+          <>
+            {canCreate && (
+              <Button onClick={() => setNewOpen(true)} className="flex items-center gap-2">
+                <Plus className="w-4 h-4" /> New Maintenance Request
+              </Button>
+            )}
+            {canManage && (
+              <Button variant="outline" onClick={() => { setSelectedRequest(null); setAssignOpen(true); }} className="flex items-center gap-2">
+                <UserCheck className="w-4 h-4" /> Assign Technician
+              </Button>
+            )}
+            <Button
+              variant={viewMode === 'HISTORY' ? 'default' : 'outline'}
+              onClick={() => { setViewMode(viewMode === 'HISTORY' ? 'REQUESTS' : 'HISTORY'); setPage(1); }}
+              className="flex items-center gap-2"
+            >
+              <History className="w-4 h-4" /> {viewMode === 'HISTORY' ? 'Maintenance Requests' : 'Maintenance History'}
             </Button>
-          )}
-          {canManage && (
-            <Button variant="outline" onClick={() => { setSelectedRequest(null); setAssignOpen(true); }} className="flex items-center gap-2">
-              <UserCheck className="w-4 h-4" /> Assign Technician
+            <Button variant="outline" onClick={() => setCalendarOpen(true)} className="flex items-center gap-2">
+              <CalendarDays className="w-4 h-4" /> Maintenance Calendar
             </Button>
-          )}
-          <Button
-            variant={viewMode === 'HISTORY' ? 'default' : 'outline'}
-            onClick={() => { setViewMode(viewMode === 'HISTORY' ? 'REQUESTS' : 'HISTORY'); setPage(1); }}
-            className="flex items-center gap-2"
-          >
-            <History className="w-4 h-4" /> {viewMode === 'HISTORY' ? 'Maintenance Requests' : 'Maintenance History'}
-          </Button>
-          <Button variant="outline" onClick={() => setCalendarOpen(true)} className="flex items-center gap-2">
-            <CalendarDays className="w-4 h-4" /> Maintenance Calendar
-          </Button>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
         {statCards.map((card) => (

@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { ContentCard } from '@/components/layout/ContentCard';
 import { DataTable, ColumnDef } from '@/components/ui/DataTable';
 import { SearchBar } from '@/components/ui/SearchBar';
@@ -178,14 +179,15 @@ export default function DepartmentsPage() {
 
   return (
     <PageContainer>
-      <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <p className="text-muted-foreground mt-2">Manage company departments.</p>
-        </div>
-        <Button onClick={() => router.push('/organization/departments/create')} className="flex items-center gap-2 w-full md:w-auto">
-          <Plus className="w-4 h-4" /> Add Department
-        </Button>
-      </div>
+      <PageHeader
+        title="Departments"
+        description="Manage company departments."
+        actions={
+          <Button onClick={() => router.push('/organization/departments/create')} className="flex items-center gap-2 w-full md:w-auto">
+            <Plus className="w-4 h-4" /> Add Department
+          </Button>
+        }
+      />
 
       <ContentCard className="mb-6 p-5">
         <div className="flex flex-col md:flex-row items-center gap-4 w-full">

@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { ContentCard } from '@/components/layout/ContentCard';
 import { DataTable, ColumnDef } from '@/components/ui/DataTable';
 import { SearchBar } from '@/components/ui/SearchBar';
@@ -364,22 +365,22 @@ export default function AllocationPage() {
 
   return (
     <PageContainer>
-      <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Allocation & Transfer</h1>
-          <p className="text-muted-foreground mt-1">Manage asset allocation, transfers, returns and complete history.</p>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-          {canEdit && (
-            <Button onClick={() => setIsAllocateOpen(true)} className="flex items-center gap-2">
-              <Plus className="w-4 h-4" /> Allocate Asset
+      <PageHeader 
+        title="Allocation & Transfer"
+        description="Manage asset allocation, transfers, returns and complete history."
+        actions={
+          <>
+            {canEdit && (
+              <Button onClick={() => setIsAllocateOpen(true)} className="flex items-center gap-2">
+                <Plus className="w-4 h-4" /> Allocate Asset
+              </Button>
+            )}
+            <Button variant={viewMode === 'HISTORY' ? "default" : "outline"} onClick={() => { setViewMode(viewMode === 'ACTIVE' ? 'HISTORY' : 'ACTIVE'); setPage(1); }} className="flex items-center gap-2">
+              <History className="w-4 h-4" /> {viewMode === 'ACTIVE' ? 'View History' : 'Back to Active'}
             </Button>
-          )}
-          <Button variant={viewMode === 'HISTORY' ? "default" : "outline"} onClick={() => { setViewMode(viewMode === 'ACTIVE' ? 'HISTORY' : 'ACTIVE'); setPage(1); }} className="flex items-center gap-2">
-            <History className="w-4 h-4" /> {viewMode === 'ACTIVE' ? 'View History' : 'Back to Active'}
-          </Button>
-        </div>
-      </div>
+          </>
+        }
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
         <ContentCard className="p-4 flex flex-col justify-center border-l-4 border-l-blue-500">

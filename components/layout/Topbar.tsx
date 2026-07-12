@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import { useSelector, useDispatch } from 'react-redux';
 import { Menu, Moon, Sun, Bell, ChevronDown, Search, User as UserIcon, Key, Shield, LogOut } from 'lucide-react';
@@ -9,6 +9,7 @@ import { useRouteMeta } from '@/hooks/useRouteMeta';
 import { logout } from '@/store/authSlice';
 import Link from 'next/link';
 import { NotificationBell } from './NotificationBell';
+import { cn } from '@/lib/utils';
 
 export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   const { theme, setTheme } = useTheme();
@@ -17,6 +18,11 @@ export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
   const dispatch = useDispatch();
   
   const [profileOpen, setProfileOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -47,12 +53,36 @@ export function Topbar({ onToggleSidebar }: { onToggleSidebar: () => void }) {
         </div>
 
         {/* Theme Toggle */}
-        <button
-          onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-          className="relative p-2 text-muted-foreground hover:text-foreground transition-colors rounded-full hover:bg-muted"
-        >
-          {theme === 'dark' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-        </button>
+        <div className="flex items-center gap-3 mr-2">
+          <span className="text-sm font-semibold text-foreground hidden sm:block">
+            {mounted ? (theme === 'dark' ? 'Dark' : 'Light') : 'Theme'}
+          </span>
+          <button
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className={cn(
+              "relative inline-flex h-6 w-11 items-center rounded-full transition-colors",
+              mounted && theme === 'dark' ? "bg-primary/20 border border-primary/30" : "bg-muted-foreground/30"
+            )}
+          >
+            <span className="sr-only">Toggle theme</span>
+            <span
+              className={cn(
+                "inline-flex h-4 w-4 transform items-center justify-center rounded-full bg-background shadow transition duration-200 ease-in-out",
+                mounted && theme === 'dark' ? "translate-x-6 text-primary" : "translate-x-1 text-muted-foreground"
+              )}
+            >
+              {mounted ? (
+                theme === 'dark' ? (
+                  <Moon className="h-[10px] w-[10px]" />
+                ) : (
+                  <Sun className="h-[10px] w-[10px]" />
+                )
+              ) : (
+                <Moon className="h-[10px] w-[10px]" />
+              )}
+            </span>
+          </button>
+        </div>
         
         {/* Notification Bell */}
         <NotificationBell />

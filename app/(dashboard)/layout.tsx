@@ -55,7 +55,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         />
       )}
 
-      <Sidebar isOpen={isSidebarOpen} onLogout={handleLogout} />
+      <Sidebar isOpen={isSidebarOpen} onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)} onLogout={handleLogout} />
 
       <div 
         className={cn(

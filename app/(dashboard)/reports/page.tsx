@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { ContentCard } from '@/components/layout/ContentCard';
 import { DataTable, ColumnDef } from '@/components/ui/DataTable';
 import { Pagination } from '@/components/ui/Pagination';
@@ -171,35 +172,29 @@ export default function ReportsPage() {
 
   return (
     <PageContainer>
-      {/* Header */}
-      <div className="mb-6 flex flex-col md:flex-row md:items-start justify-between gap-4">
-        <div>
-          <p className="text-xs text-muted-foreground mb-1">Home &rsaquo; Reports</p>
-          <h1 className="text-2xl font-bold">Reports & Analytics</h1>
-          <p className="text-muted-foreground mt-1 text-sm max-w-xl">
-            View complete business analytics, asset reports, booking reports, maintenance reports and export everything from one centralized dashboard.
-          </p>
-        </div>
-        
-        {/* Tabs / Top Action Buttons */}
-        <div className="flex flex-wrap items-center gap-2 shrink-0 bg-muted/50 p-1 rounded-lg">
-          <Button variant={activeTab === 'DASHBOARD' ? 'default' : 'ghost'} size="sm" onClick={() => { setActiveTab('DASHBOARD'); setPage(1); }} className="flex gap-2">
-            <BarChart3 className="w-4 h-4" /> Dashboard
-          </Button>
-          <Button variant={activeTab === 'ASSETS' ? 'default' : 'ghost'} size="sm" onClick={() => { setActiveTab('ASSETS'); setPage(1); }} className="flex gap-2">
-            <Box className="w-4 h-4" /> Assets
-          </Button>
-          <Button variant={activeTab === 'BOOKINGS' ? 'default' : 'ghost'} size="sm" onClick={() => { setActiveTab('BOOKINGS'); setPage(1); }} className="flex gap-2">
-            <CalendarCheck className="w-4 h-4" /> Bookings
-          </Button>
-          <Button variant={activeTab === 'MAINTENANCE' ? 'default' : 'ghost'} size="sm" onClick={() => { setActiveTab('MAINTENANCE'); setPage(1); }} className="flex gap-2">
-            <Wrench className="w-4 h-4" /> Maintenance
-          </Button>
-          <Button variant={activeTab === 'AUDIT' ? 'default' : 'ghost'} size="sm" onClick={() => { setActiveTab('AUDIT'); setPage(1); }} className="flex gap-2">
-            <ShieldCheck className="w-4 h-4" /> Audit
-          </Button>
-        </div>
-      </div>
+      <PageHeader
+        title="Reports & Analytics"
+        description="View complete business analytics, asset reports, booking reports, maintenance reports and export everything from one centralized dashboard."
+        actions={
+          <div className="flex flex-wrap items-center gap-2 bg-muted/50 p-1 rounded-lg">
+            <Button variant={activeTab === 'DASHBOARD' ? 'default' : 'ghost'} size="sm" onClick={() => { setActiveTab('DASHBOARD'); setPage(1); }} className="flex gap-2">
+              <BarChart3 className="w-4 h-4" /> Dashboard
+            </Button>
+            <Button variant={activeTab === 'ASSETS' ? 'default' : 'ghost'} size="sm" onClick={() => { setActiveTab('ASSETS'); setPage(1); }} className="flex gap-2">
+              <Box className="w-4 h-4" /> Assets
+            </Button>
+            <Button variant={activeTab === 'BOOKINGS' ? 'default' : 'ghost'} size="sm" onClick={() => { setActiveTab('BOOKINGS'); setPage(1); }} className="flex gap-2">
+              <CalendarCheck className="w-4 h-4" /> Bookings
+            </Button>
+            <Button variant={activeTab === 'MAINTENANCE' ? 'default' : 'ghost'} size="sm" onClick={() => { setActiveTab('MAINTENANCE'); setPage(1); }} className="flex gap-2">
+              <Wrench className="w-4 h-4" /> Maintenance
+            </Button>
+            <Button variant={activeTab === 'AUDIT' ? 'default' : 'ghost'} size="sm" onClick={() => { setActiveTab('AUDIT'); setPage(1); }} className="flex gap-2">
+              <ShieldCheck className="w-4 h-4" /> Audit
+            </Button>
+          </div>
+        }
+      />
 
       {activeTab === 'DASHBOARD' ? (
         <div className="space-y-6">

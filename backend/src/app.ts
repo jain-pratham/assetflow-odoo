@@ -14,7 +14,9 @@ import auditRoutes from './routes/audit.routes';
 import reportsRoutes from './routes/reports.routes';
 import notificationsRoutes from './routes/notifications.routes';
 import activityRoutes from './routes/activity.routes';
+import profileRoutes from './routes/profile.routes';
 import { errorHandler, notFoundHandler } from './middleware/error.middleware';
+import path from 'path';
 
 const app = express();
 
@@ -29,6 +31,9 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+// Serve public directory for uploads (avatars)
+app.use(express.static(path.join(__dirname, '..', 'public')));
+
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/departments', departmentRoutes);
@@ -41,6 +46,7 @@ app.use('/api/maintenance', maintenanceRoutes);
 app.use('/api/reports', reportsRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/activity', activityRoutes);
+app.use('/api/profile', profileRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

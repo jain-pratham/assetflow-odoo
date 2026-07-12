@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PageContainer } from '@/components/layout/PageContainer';
-import { ContentCard } from '@/components/layout/ContentCard';
 import { PageHeader } from '@/components/layout/PageHeader';
+import { ContentCard } from '@/components/layout/ContentCard';
 import { DataTable, ColumnDef } from '@/components/ui/DataTable';
 import { SearchBar } from '@/components/ui/SearchBar';
 import { Pagination } from '@/components/ui/Pagination';
@@ -296,9 +296,10 @@ export default function EmployeesPage() {
 
   return (
     <PageContainer>
-      <div className="mb-6">
-        <p className="text-muted-foreground mt-2">Manage employees, assign departments and roles.</p>
-      </div>
+      <PageHeader
+        title="Employees"
+        description="Manage employees, assign departments and roles."
+      />
 
       <ContentCard className="mb-6 p-5">
         <div className="flex flex-col md:flex-row items-center gap-4 w-full">

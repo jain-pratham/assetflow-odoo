@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { ContentCard } from '@/components/layout/ContentCard';
 import { DataTable, ColumnDef } from '@/components/ui/DataTable';
 import { SearchBar } from '@/components/ui/SearchBar';
@@ -171,14 +172,15 @@ export default function CategoriesPage() {
 
   return (
     <PageContainer>
-      <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <p className="text-muted-foreground mt-2">Manage all asset categories used throughout the organization.</p>
-        </div>
-        <Button onClick={() => router.push('/organization/categories/create')} className="flex items-center gap-2 w-full md:w-auto">
-          <Plus className="w-4 h-4" /> Add Category
-        </Button>
-      </div>
+      <PageHeader
+        title="Asset Categories"
+        description="Manage asset categories and their custom attributes."
+        actions={
+          <Button onClick={() => router.push('/organization/categories/create')} className="flex items-center gap-2 w-full md:w-auto">
+            <Plus className="w-4 h-4" /> Add Category
+          </Button>
+        }
+      />
 
       <ContentCard className="mb-6 p-5">
         <div className="flex flex-col md:flex-row items-center gap-4 w-full">

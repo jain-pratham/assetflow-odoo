@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useSelector } from 'react-redux';
-import { ChevronDown, ChevronRight, LogOut, Shield, Key, User as UserIcon } from 'lucide-react';
+import { ChevronDown, ChevronRight, ChevronLeft, LogOut, Shield, Key, User as UserIcon } from 'lucide-react';
 import { RootState } from '@/store/store';
 import { cn } from '@/lib/utils';
 import { sidebarConfig } from '@/lib/config/sidebarConfig';
@@ -81,8 +81,13 @@ function SidebarGroup({ item, pathname, isOpen, userRole }: { item: any, pathnam
       )}
 
       {/* Submenu rendering */}
-      {hasChildren && expanded && isOpen && (
-        <div className="flex flex-col pl-9 pr-2 space-y-1 mt-1">
+      <div 
+        className={cn(
+          "flex flex-col pl-9 pr-2 overflow-hidden transition-all duration-300 ease-in-out",
+          hasChildren && expanded && isOpen ? "max-h-96 mt-1 opacity-100" : "max-h-0 opacity-0"
+        )}
+      >
+        <div className="flex flex-col space-y-1">
           {visibleChildren.map((child: any) => {
             const isChildActive = pathname === child.href || pathname.startsWith(`${child.href}/`);
             return (
@@ -99,12 +104,12 @@ function SidebarGroup({ item, pathname, isOpen, userRole }: { item: any, pathnam
             );
           })}
         </div>
-      )}
+      </div>
     </div>
   );
 }
 
-export function Sidebar({ isOpen, onLogout }: { isOpen: boolean; onLogout?: () => void }) {
+export function Sidebar({ isOpen, onToggleSidebar, onLogout }: { isOpen: boolean; onToggleSidebar?: () => void; onLogout?: () => void }) {
   const pathname = usePathname();
   const user = useSelector((state: RootState) => state.auth.user);
   const userRole = (user?.role as UserRole) || 'EMPLOYEE';
@@ -123,8 +128,12 @@ export function Sidebar({ isOpen, onLogout }: { isOpen: boolean; onLogout?: () =
           isOpen ? "w-[260px] translate-x-0" : "w-[68px] -translate-x-full lg:translate-x-0"
         )}
       >
-        <div className="h-16 flex items-center justify-center border-b border-white/10 shrink-0">
-          <span className="text-xl font-bold tracking-tight text-white">{isOpen ? 'CRM Admin' : 'CRM'}</span>
+        <div className={cn("h-[64px] flex items-center border-b border-white/10 shrink-0", isOpen ? "justify-between px-4" : "justify-center")}>
+          {isOpen ? (
+            <span className="text-xl font-bold tracking-tight text-white">CRM Admin</span>
+          ) : (
+            <ChevronRight className="w-5 h-5 text-white/70" />
+          )}
         </div>
       </aside>
     );
@@ -138,11 +147,22 @@ export function Sidebar({ isOpen, onLogout }: { isOpen: boolean; onLogout?: () =
       )}
     >
       {/* Logo & Header */}
-      <div className="h-16 flex items-center justify-center border-b border-white/10 shrink-0">
+      <div className={cn("h-[64px] flex items-center border-b border-white/10 shrink-0", isOpen ? "justify-between px-4" : "justify-center")}>
         {isOpen ? (
-          <span className="text-xl font-bold tracking-tight text-white">CRM Admin</span>
+          <>
+            <span className="text-xl font-bold tracking-tight text-white">CRM Admin</span>
+            {onToggleSidebar && (
+              <button onClick={onToggleSidebar} className="p-1 rounded-md hover:bg-white/10 text-white/70 hover:text-white transition-colors">
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+            )}
+          </>
         ) : (
-          <span className="text-xl font-bold tracking-tight text-white">CRM</span>
+          onToggleSidebar && (
+            <button onClick={onToggleSidebar} className="p-1 rounded-md hover:bg-white/10 text-white/70 hover:text-white transition-colors">
+              <ChevronRight className="w-5 h-5" />
+            </button>
+          )
         )}
       </div>
 
@@ -189,26 +209,29 @@ export function Sidebar({ isOpen, onLogout }: { isOpen: boolean; onLogout?: () =
       {/* Extra Buttons (Footer) */}
       <div className="p-3 border-t border-white/10 shrink-0">
         <div className={cn("flex items-center gap-1 mb-2", isOpen ? "justify-between px-2" : "flex-col justify-center")}>
-          <Link href="/profile" className="p-2 rounded-md text-white/70 hover:bg-white/10 hover:text-white transition-colors" title="Profile">
-            <UserIcon className="w-[18px] h-[18px]" />
+          <Link href="/profile" className="flex items-center gap-1.5 p-1.5 rounded-md text-white/70 hover:bg-white/10 hover:text-white transition-colors" title="Profile">
+            <UserIcon className="w-[14px] h-[14px]" />
+            {isOpen && <span className="text-[12px] font-medium">Profile</span>}
           </Link>
-          <Link href="/password" className="p-2 rounded-md text-white/70 hover:bg-white/10 hover:text-white transition-colors" title="Password">
-            <Key className="w-[18px] h-[18px]" />
+          <Link href="/password" className="flex items-center gap-1.5 p-1.5 rounded-md text-white/70 hover:bg-white/10 hover:text-white transition-colors" title="Password">
+            <Key className="w-[14px] h-[14px]" />
+            {isOpen && <span className="text-[12px] font-medium">Password</span>}
           </Link>
-          <Link href="/2fa" className="p-2 rounded-md text-white/70 hover:bg-white/10 hover:text-white transition-colors" title="2FA">
-            <Shield className="w-[18px] h-[18px]" />
+          <Link href="/2fa" className="flex items-center gap-1.5 p-1.5 rounded-md text-white/70 hover:bg-white/10 hover:text-white transition-colors" title="2FA">
+            <Shield className="w-[14px] h-[14px]" />
+            {isOpen && <span className="text-[12px] font-medium">2FA</span>}
           </Link>
         </div>
         <button
           onClick={onLogout}
           className={cn(
-            "w-full flex items-center justify-center p-2.5 rounded-md bg-white/10 text-white hover:bg-white/20 transition-colors group",
-            !isOpen && "px-0"
+            "w-full flex items-center p-2.5 rounded-md text-white hover:bg-white/10 transition-colors group",
+            isOpen ? "justify-start px-2" : "justify-center px-0"
           )}
           title={!isOpen ? "Logout" : undefined}
         >
-          <LogOut className={cn("w-[18px] h-[18px]", isOpen && "mr-2")} />
-          {isOpen && <span className="text-[14px] font-medium">Logout</span>}
+          <LogOut className={cn("w-[18px] h-[18px]", isOpen && "mr-3")} />
+          {isOpen && <span className="text-[14px] font-medium text-white/80 group-hover:text-white transition-colors">Logout</span>}
         </button>
       </div>
     </aside>

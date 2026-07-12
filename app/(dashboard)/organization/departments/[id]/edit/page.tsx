@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { ContentCard } from '@/components/layout/ContentCard';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Save } from 'lucide-react';
@@ -106,17 +107,14 @@ export default function EditDepartmentPage({ params }: { params: Promise<{ id: s
 
   return (
     <PageContainer>
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.push('/organization/departments')}>
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">Edit Department</h1>
-            <p className="text-muted-foreground mt-1">Update department details.</p>
-          </div>
-        </div>
-      </div>
+      <PageHeader
+        title="Edit Department"
+        description="Update department details and structure."
+        breadcrumbItems={[
+          { label: 'Departments', href: '/organization/departments' },
+          { label: 'Edit Department' }
+        ]}
+      />
 
       <div className="max-w-2xl">
         <ContentCard className="p-6">

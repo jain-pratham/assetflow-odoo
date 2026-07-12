@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { ContentCard } from '@/components/layout/ContentCard';
 import { DataTable, ColumnDef } from '@/components/ui/DataTable';
 import { SearchBar } from '@/components/ui/SearchBar';
@@ -390,17 +391,17 @@ export default function AssetsPage() {
 
   return (
     <PageContainer>
-      <div className="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold">Assets</h1>
-          <p className="text-muted-foreground mt-1">Manage all organization assets.</p>
-        </div>
-        {canEdit && (
-          <Button onClick={() => { setSelectedAsset(null); setIsFormOpen(true); }} className="flex items-center gap-2">
-            <Plus className="w-4 h-4" /> Register Asset
-          </Button>
-        )}
-      </div>
+      <PageHeader 
+        title="Assets"
+        description="Manage all organization assets."
+        actions={
+          canEdit && (
+            <Button onClick={() => { setSelectedAsset(null); setIsFormOpen(true); }} className="flex items-center gap-2">
+              <Plus className="w-4 h-4" /> Register Asset
+            </Button>
+          )
+        }
+      />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
         <ContentCard className="p-4 flex flex-col justify-center">

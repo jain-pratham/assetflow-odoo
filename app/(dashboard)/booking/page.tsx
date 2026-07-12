@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { ContentCard } from '@/components/layout/ContentCard';
 import { DataTable, ColumnDef } from '@/components/ui/DataTable';
 import { Pagination } from '@/components/ui/Pagination';
@@ -570,46 +571,42 @@ export default function BookingPage() {
 
   return (
     <PageContainer>
-      {/* Header */}
-      <div className="mb-6 flex flex-col md:flex-row md:items-start justify-between gap-4">
-        <div>
-          <p className="text-xs text-muted-foreground mb-1">Home &rsaquo; Resource Booking</p>
-          <h1 className="text-2xl font-bold">Resource Booking</h1>
-          <p className="text-muted-foreground mt-1 text-sm max-w-xl">
-            Book meeting rooms, projectors, laptops, conference rooms and other company resources from one centralized dashboard.
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2 shrink-0">
-          {canCreate && (
-            <Button onClick={() => setIsBookOpen(true)} className="flex items-center gap-2">
-              <Plus className="w-4 h-4" /> Book Resource
-            </Button>
-          )}
-          <Button variant="outline" onClick={() => setIsCalendarOpen(true)} className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" /> Calendar View
-          </Button>
-          <Button
-            variant={viewMode === 'REQUESTS' ? 'default' : 'outline'}
-            onClick={() => { setViewMode('REQUESTS'); setPage(1); }}
-            className="flex items-center gap-2"
-          >
-            <ClipboardList className="w-4 h-4" /> Requests
-            {stats.pendingRequests > 0 && (
-              <span className="ml-1 bg-amber-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center">
-                {stats.pendingRequests}
-              </span>
+      <PageHeader
+        title="Resource Booking"
+        description="Book meeting rooms, projectors, laptops, conference rooms and other company resources from one centralized dashboard."
+        actions={
+          <>
+            {canCreate && (
+              <Button onClick={() => setIsBookOpen(true)} className="flex items-center gap-2">
+                <Plus className="w-4 h-4" /> Book Resource
+              </Button>
             )}
-          </Button>
-          <Button
-            variant={viewMode === 'HISTORY' ? 'default' : 'outline'}
-            onClick={() => { setViewMode(viewMode === 'HISTORY' ? 'BOOKINGS' : 'HISTORY'); setPage(1); }}
-            className="flex items-center gap-2"
-          >
-            <History className="w-4 h-4" />
-            {viewMode === 'HISTORY' ? 'Back to Bookings' : 'History'}
-          </Button>
-        </div>
-      </div>
+            <Button variant="outline" onClick={() => setIsCalendarOpen(true)} className="flex items-center gap-2">
+              <Calendar className="w-4 h-4" /> Calendar View
+            </Button>
+            <Button
+              variant={viewMode === 'REQUESTS' ? 'default' : 'outline'}
+              onClick={() => { setViewMode('REQUESTS'); setPage(1); }}
+              className="flex items-center gap-2"
+            >
+              <ClipboardList className="w-4 h-4" /> Requests
+              {stats.pendingRequests > 0 && (
+                <span className="ml-1 bg-amber-500 text-white text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[1.25rem] text-center">
+                  {stats.pendingRequests}
+                </span>
+              )}
+            </Button>
+            <Button
+              variant={viewMode === 'HISTORY' ? 'default' : 'outline'}
+              onClick={() => { setViewMode(viewMode === 'HISTORY' ? 'BOOKINGS' : 'HISTORY'); setPage(1); }}
+              className="flex items-center gap-2"
+            >
+              <History className="w-4 h-4" />
+              {viewMode === 'HISTORY' ? 'Back to Bookings' : 'History'}
+            </Button>
+          </>
+        }
+      />
 
       {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">

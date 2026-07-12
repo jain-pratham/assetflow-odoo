@@ -1,11 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { ContentCard } from '@/components/layout/ContentCard';
 import { DataTable } from '@/components/ui/DataTable';
 import { Pagination } from '@/components/ui/Pagination';
 import { StatusBadge } from '@/components/ui/StatusBadge';
+import { Button } from '@/components/ui/button';
 import { useNotification } from '@/context/NotificationContext';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
@@ -127,24 +130,20 @@ export default function NotificationsPage() {
   ];
 
   return (
-    <PageContainer
-      breadcrumbs={[
-        { label: 'Dashboard', href: '/dashboard' },
-        { label: 'Notifications', href: '/notifications', active: true }
-      ]}
-    >
-      <div className="flex justify-between items-center mb-6">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">Notifications</h1>
-          <p className="text-sm text-muted-foreground mt-1">View and manage all your notifications.</p>
-        </div>
-        <button 
-          onClick={handleMarkAllAsRead}
-          className="px-4 py-2 bg-primary text-primary-foreground rounded-md text-sm font-medium hover:bg-primary/90 flex items-center shadow-sm"
-        >
-          <Check className="w-4 h-4 mr-2" /> Mark All as Read
-        </button>
-      </div>
+    <PageContainer>
+      <PageHeader
+        title="Notifications"
+        description="View and manage all your notifications."
+        breadcrumbItems={[
+          { label: 'Home', href: '/' },
+          { label: 'Notifications' }
+        ]}
+        actions={
+          <Button onClick={handleMarkAllAsRead} className="flex items-center shadow-sm">
+            <Check className="w-4 h-4 mr-2" /> Mark All as Read
+          </Button>
+        }
+      />
 
       <ContentCard>
         <DataTable 

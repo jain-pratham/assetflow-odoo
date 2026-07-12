@@ -94,6 +94,7 @@ export default function EmployeeDetailsPage({ params }: { params: Promise<{ id: 
 
   return (
     <PageContainer>
+      <PageHeader title="Employee Details" />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
         {/* Read-Only Info */}
         <ContentCard className="md:col-span-1 flex flex-col items-start p-6 min-h-0">

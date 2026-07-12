@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import { PageContainer } from '@/components/layout/PageContainer';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { ContentCard } from '@/components/layout/ContentCard';
 import { Button } from '@/components/ui/button';
 import { StatusBadge } from '@/components/ui/StatusBadge';
@@ -49,16 +50,15 @@ export default function CategoryViewPage({ params }: { params: Promise<{ id: str
 
   return (
     <PageContainer>
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.push('/organization/categories')}>
-            <ArrowLeft className="w-5 h-5" />
-          </Button>
-          <div>
-            <h1 className="text-2xl font-bold">{cat.name}</h1>
-            <p className="text-muted-foreground mt-1 font-mono">{cat.code}</p>
-          </div>
-        </div>
+      <PageHeader
+        title={cat.name}
+        description={cat.description || 'Asset Category details'}
+        breadcrumbItems={[
+          { label: 'Categories', href: '/organization/categories' },
+          { label: cat.name }
+        ]}
+      />
+      <div className="mb-6 flex justify-end">
         <div className="flex items-center gap-3">
           <Button onClick={() => router.push(`/organization/categories/${cat._id}/edit`)}>
             <Edit className="w-4 h-4 mr-2" />

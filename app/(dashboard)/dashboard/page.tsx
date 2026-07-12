@@ -1,4 +1,5 @@
 import { PageContainer } from '@/components/layout/PageContainer';
+import { PageHeader } from '@/components/layout/PageHeader';
 import { ContentCard } from '@/components/layout/ContentCard';
 import { EmptyState } from '@/components/layout/EmptyState';
 import { Settings2 } from 'lucide-react';
@@ -6,6 +7,7 @@ import { Settings2 } from 'lucide-react';
 export default function Page() {
   return (
     <PageContainer>
+      <PageHeader title="Dashboard" />
       <ContentCard>
         <EmptyState 
           icon={Settings2}
