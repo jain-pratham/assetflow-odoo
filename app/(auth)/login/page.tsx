@@ -37,6 +37,9 @@ export default function LoginPage() {
       const res = await api.post('/auth/login', data);
       const { user, accessToken } = res.data.data;
       dispatch(setCredentials({ user, accessToken }));
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('hasSession', 'true');
+      }
       toast.success('Logged in successfully');
       router.push('/dashboard');
     } catch (error: any) {

@@ -21,9 +21,9 @@
 ## Entities
 - [x] Users
 - [x] RoleHistory
-- [/] Departments
-- [ ] Categories
-- [ ] Assets
+- [x] Departments
+- [x] Categories
+- [x] Assets
 - [ ] Allocations
 - [ ] Transfers
 - [ ] Bookings

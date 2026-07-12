@@ -53,14 +53,9 @@ export const sidebarConfig: SidebarConfigItem[] = [
   {
     id: 'assets',
     name: 'Assets',
+    href: '/assets',
     icon: Box,
     roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER, ROLES.DEPARTMENT_HEAD, ROLES.EMPLOYEE],
-    children: [
-      { id: 'assets-register', name: 'Register Asset', href: ROUTES.ASSETS.REGISTER, roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER] },
-      { id: 'assets-list', name: 'Asset Inventory', href: ROUTES.ASSETS.LIST, roles: [ROLES.ADMIN, ROLES.ASSET_MANAGER] },
-      { id: 'assets-dept', name: 'Department Assets', href: ROUTES.ASSETS.DEPARTMENT, roles: [ROLES.DEPARTMENT_HEAD] },
-      { id: 'assets-my', name: 'My Assets', href: ROUTES.ASSETS.MY, roles: [ROLES.EMPLOYEE] },
-    ],
   },
   {
     id: 'allocation',

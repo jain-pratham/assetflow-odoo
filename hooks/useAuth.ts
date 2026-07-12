@@ -11,9 +11,21 @@ export const useAuth = () => {
   const dispatch = useDispatch();
   const { user, isAuthenticated, accessToken } = useSelector((state: RootState) => state.auth);
   const [isInitializing, setIsInitializing] = useState(true);
+  const [shouldFetch, setShouldFetch] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const hasSession = localStorage.getItem('hasSession') === 'true';
+      if (hasSession && !isAuthenticated) {
+        setShouldFetch(true);
+      } else {
+        setIsInitializing(false);
+      }
+    }
+  }, [isAuthenticated]);
 
   const { data, error, mutate } = useSWR(
-    !isAuthenticated ? '/auth/me' : null, // fetch if we don't have the user profile
+    shouldFetch ? '/auth/me' : null,
     fetcher,
     {
       shouldRetryOnError: false,
@@ -23,18 +35,13 @@ export const useAuth = () => {
 
   useEffect(() => {
     if (data && !isAuthenticated) {
-      // Data contains the user, but we don't have the token here (it's in cookie, interceptor manages refresh).
-      // Wait, /auth/me just returns user. The refresh token logic happens automatically in interceptor.
-      // But we need the new access token to put in Redux. Let's just rely on the interceptor to get it,
-      // and here we just set the user. Wait, actually if we hit /auth/me on page load, and the interceptor
-      // refreshes the token, the interceptor dispatches updateAccessToken.
-      // So here we just set the user.
       dispatch(setCredentials({ user: data, accessToken: store.getState().auth.accessToken || '' }));
       setIsInitializing(false);
     } else if (error) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('hasSession');
+      }
       dispatch(logout());
-      setIsInitializing(false);
-    } else if (isAuthenticated) {
       setIsInitializing(false);
     }
   }, [data, error, dispatch, isAuthenticated]);

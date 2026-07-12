@@ -35,8 +35,12 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         undefined,  // clear data
         { revalidate: false }
       );
+      // 3. Clear session flag
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('hasSession');
+      }
       
-      // 3. Hard redirect to purge memory
+      // 4. Hard redirect to purge memory
       window.location.href = '/login';
     }
   };

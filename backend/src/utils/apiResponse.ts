@@ -2,14 +2,16 @@ export interface ApiResponse<T = any> {
   success: boolean;
   message: string;
   data?: T;
+  pagination?: any;
   error?: any;
 }
 
-export const successResponse = <T>(message: string, data?: T): ApiResponse<T> => {
+export const successResponse = <T>(message: string, data?: T, pagination?: any): ApiResponse<T> => {
   return {
     success: true,
     message,
     data,
+    ...(pagination && { pagination })
   };
 };
 

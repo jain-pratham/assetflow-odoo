@@ -108,6 +108,27 @@ export function Sidebar({ isOpen, onLogout }: { isOpen: boolean; onLogout?: () =
   const pathname = usePathname();
   const user = useSelector((state: RootState) => state.auth.user);
   const userRole = (user?.role as UserRole) || 'EMPLOYEE';
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Ensure server matches client on first render
+  if (!mounted) {
+    return (
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex flex-col bg-sidebar dark:bg-sidebar-primary text-white transition-all duration-300 ease-in-out border-r border-sidebar-border shadow-lg",
+          isOpen ? "w-[260px] translate-x-0" : "w-[68px] -translate-x-full lg:translate-x-0"
+        )}
+      >
+        <div className="h-16 flex items-center justify-center border-b border-white/10 shrink-0">
+          <span className="text-xl font-bold tracking-tight text-white">{isOpen ? 'CRM Admin' : 'CRM'}</span>
+        </div>
+      </aside>
+    );
+  }
 
   return (
     <aside

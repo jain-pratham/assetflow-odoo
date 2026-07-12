@@ -7,8 +7,8 @@ import { createDepartmentSchema, updateDepartmentSchema } from '../validators/de
 export class DepartmentController {
   static async getDepartments(req: Request, res: Response, next: NextFunction) {
     try {
-      const page = parseInt(req.query.page as string);
-      const limit = parseInt(req.query.limit as string) || 10;
+      const page = parseInt(req.query.page as string) || 1;
+      const limit = parseInt(req.query.limit as string) || (req.query.page ? 10 : 1000);
       const search = req.query.search as string;
       const status = req.query.status as string;
 
@@ -23,70 +23,61 @@ export class DepartmentController {
       
       if (status) {
         query.status = status;
+      } else if (!req.query.page && !req.query.limit) {
+        // Legacy support: if neither page nor limit is provided, assume it's for a dropdown and only want ACTIVE
+        query.status = 'ACTIVE';
       }
 
-      // If page is provided, do paginated response
-      if (!isNaN(page)) {
-        const skip = (page - 1) * limit;
-        
-        // Use aggregation to get employee counts efficiently
-        const departments = await Department.aggregate([
-          { $match: query },
-          { $sort: { createdAt: -1 } },
-          { $skip: skip },
-          { $limit: limit },
-          {
-            $lookup: {
-              from: 'users',
-              localField: 'headId',
-              foreignField: '_id',
-              as: 'head'
-            }
-          },
-          {
-            $unwind: {
-              path: '$head',
-              preserveNullAndEmptyArrays: true
-            }
-          },
-          {
-            $lookup: {
-              from: 'users',
-              let: { deptId: '$_id' },
-              pipeline: [
-                { $match: { $expr: { $eq: ['$departmentId', '$$deptId'] } } },
-                { $count: 'count' }
-              ],
-              as: 'employeeCountData'
-            }
-          },
-          {
-            $addFields: {
-              employeeCount: {
-                $ifNull: [{ $arrayElemAt: ['$employeeCountData.count', 0] }, 0]
-              }
-            }
-          },
-          { $project: { employeeCountData: 0, 'head.passwordHash': 0, 'head.refreshTokenHash': 0 } }
-        ]);
-
-        const total = await Department.countDocuments(query);
-
-        return res.status(200).json(successResponse('Departments retrieved', {
-          departments,
-          pagination: {
-            total,
-            page,
-            pages: Math.ceil(total / limit)
+      const skip = (page - 1) * limit;
+      
+      // Use aggregation to get employee counts efficiently
+      const departments = await Department.aggregate([
+        { $match: query },
+        { $sort: { name: 1 } },
+        { $skip: skip },
+        { $limit: limit },
+        {
+          $lookup: {
+            from: 'users',
+            localField: 'headId',
+            foreignField: '_id',
+            as: 'head'
           }
-        }));
-      }
+        },
+        {
+          $unwind: {
+            path: '$head',
+            preserveNullAndEmptyArrays: true
+          }
+        },
+        {
+          $lookup: {
+            from: 'users',
+            let: { deptId: '$_id' },
+            pipeline: [
+              { $match: { $expr: { $eq: ['$departmentId', '$$deptId'] } } },
+              { $count: 'count' }
+            ],
+            as: 'employeeCountData'
+          }
+        },
+        {
+          $addFields: {
+            employeeCount: {
+              $ifNull: [{ $arrayElemAt: ['$employeeCountData.count', 0] }, 0]
+            }
+          }
+        },
+        { $project: { employeeCountData: 0, 'head.passwordHash': 0, 'head.refreshTokenHash': 0 } }
+      ]);
 
-      // Fallback: Legacy flat array return (For Employee Module Dropdowns)
-      // Enforce ACTIVE only if not specified
-      if (!req.query.status) query.status = 'ACTIVE';
-      const departments = await Department.find(query).sort({ name: 1 });
-      return res.status(200).json(successResponse('Departments retrieved', departments));
+      const total = await Department.countDocuments(query);
+
+      return res.status(200).json(successResponse('Departments retrieved', departments, {
+        total,
+        page,
+        pages: Math.ceil(total / limit) || 1
+      }));
     } catch (error) {
       next(error);
     }
